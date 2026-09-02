@@ -6,6 +6,7 @@ import DataTable from './components/DataTable.jsx';
 import RecordDetail from './components/RecordDetail.jsx';
 import ConfigModal from './components/ConfigModal.jsx';
 import DashboardView from './components/DashboardView.jsx';
+import LoadingScreen from './components/LoadingScreen.jsx';
 import { getGeoJSONData, getOptions } from './services/api.js';
 import {
   formatDate,
@@ -205,6 +206,11 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-950 font-sans text-slate-100 overflow-hidden">
+      {/* Full-screen Loading Overlay */}
+      {loading && (
+        <LoadingScreen message="Conectando y procesando datos de KoboToolbox..." />
+      )}
+
       {/* Header with KPIs and Survey Asset selector */}
       <Header
         kpis={kpis}
