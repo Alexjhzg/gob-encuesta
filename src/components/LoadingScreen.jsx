@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapPin, Loader2, Database, ShieldCheck } from 'lucide-react';
 
-export default function LoadingScreen({ message = 'Cargando datos de KoboToolbox...' }) {
+export default function LoadingScreen({ message = 'Cargando datos...' }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-md text-slate-100 p-6 select-none animate-fadeIn">
       {/* Background glowing aura */}
@@ -25,7 +25,7 @@ export default function LoadingScreen({ message = 'Cargando datos de KoboToolbox
         </h2>
         <p className="text-xs text-slate-400 font-medium mb-6 flex items-center gap-1.5 justify-center">
           <Database size={13} className="text-blue-400" />
-          <span>KoboToolbox API v2 Integration</span>
+          <span>Plataforma de Inteligencia Territorial</span>
         </p>
 
         {/* Loading Spinner & Status */}
@@ -43,7 +43,7 @@ export default function LoadingScreen({ message = 'Cargando datos de KoboToolbox
           </div>
 
           <p className="text-[11px] text-slate-400 text-center leading-relaxed mt-1">
-            Procesando geolocalizaciones y transformando a GeoJSON...
+            Procesando geolocalizaciones y estructurando mapa...
           </p>
         </div>
 

@@ -208,7 +208,7 @@ export default function App() {
     <div className="flex flex-col h-screen w-screen bg-slate-950 font-sans text-slate-100 overflow-hidden">
       {/* Full-screen Loading Overlay */}
       {loading && (
-        <LoadingScreen message="Conectando y procesando datos de KoboToolbox..." />
+        <LoadingScreen message="Cargando datos..." />
       )}
 
       {/* Header with KPIs and Survey Asset selector */}
