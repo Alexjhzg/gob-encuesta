@@ -135,16 +135,37 @@ async def download_json_file(filename: str):
     return FileResponse(file_path, filename=filename, media_type="application/json")
 
 
-# Static Frontend & SPA Fallback (if built)
-dist_dir = os.path.join(os.path.dirname(__file__), "../dist")
-if os.path.exists(dist_dir):
+# Static Frontend & SPA Fallback
+dist_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "../dist"))
+
+if os.path.exists(dist_dir) and os.path.exists(os.path.join(dist_dir, "assets")):
     app.mount("/assets", StaticFiles(directory=os.path.join(dist_dir, "assets")), name="assets")
 
-    @app.get("/{full_path:path}")
-    async def serve_spa(full_path: str):
-        if full_path.startswith("api/"):
-            raise HTTPException(status_code=404, detail="Endpoint API no encontrado")
-        index_file = os.path.join(dist_dir, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-        raise HTTPException(status_code=404, detail="Not Found")
+@app.get("/")
+async def root():
+    index_file = os.path.join(dist_dir, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {
+        "status": "online",
+        "service": "GeoSurvey KoboToolbox FastAPI Proxy Server",
+        "documentation": "/docs",
+        "endpoints": {
+            "health": "/api/kobo/health",
+            "data": "/api/kobo/data",
+            "options": "/api/kobo/options"
+        }
+    }
+
+@app.get("/{full_path:path}")
+async def serve_spa_or_fallback(full_path: str):
+    if full_path.startswith("api/") or full_path == "docs" or full_path == "openapi.json":
+        raise HTTPException(status_code=404, detail="Endpoint API no encontrado")
+    index_file = os.path.join(dist_dir, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    raise HTTPException(
+        status_code=404,
+        detail="Frontend estático no encontrado. Visita /docs para ver la documentación de la API."
+    )
+
