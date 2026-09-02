@@ -9,7 +9,7 @@ export default function BrandHeader() {
       </div>
       <div className="flex flex-col">
         <h1 className="text-xs sm:text-base font-bold text-slate-100 tracking-tight truncate">
-          Gobernación GeoEncuestas
+          GeoEncuestas
         </h1>
       </div>
     </div>

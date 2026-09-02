@@ -1,5 +1,5 @@
 {
-  "name": "gobernacion-kobo-geo-dashboard",
+  "name": "kobo-geo-dashboard",
   "version": "1.0.0",
   "description": "Plataforma de Inteligencia Territorial y Visualización Geográfica para Encuestas de Campo KoboToolbox con React, Leaflet y FastAPI/Express Backend.",
   "author": "Alexjhzg",
