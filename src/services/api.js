@@ -2,7 +2,9 @@
  * Frontend API client to query the internal KoboToolbox Proxy Server.
  */
 
-const API_BASE = '/api/kobo';
+const API_HOST = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE = `${API_HOST}/api/kobo`;
+
 
 /**
  * Fetches GeoJSON survey dataset from proxy
