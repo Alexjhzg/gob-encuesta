@@ -20,5 +20,18 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node'
+  },
+  build: {
+    chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          leaflet: ['leaflet', 'leaflet.markercluster'],
+          charts: ['chart.js', 'react-chartjs-2']
+        }
+      }
+    }
   }
 });
+
