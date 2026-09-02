@@ -1,8 +1,22 @@
-{
   "name": "gobernacion-kobo-geo-dashboard",
-  "private": true,
   "version": "1.0.0",
+  "description": "Plataforma de Inteligencia Territorial y Visualización Geográfica para Encuestas de Campo KoboToolbox con React, Leaflet y FastAPI/Express Backend.",
+  "author": "Alexjhzg",
+  "license": "MIT",
+  "keywords": [
+    "kobotoolbox",
+    "geojson",
+    "leaflet",
+    "react",
+    "gis",
+    "fastapi",
+    "dashboard",
+    "data-visualization",
+    "surveys"
+  ],
+  "private": false,
   "type": "module",
+
   "scripts": {
     "dev": "vite",
     "build": "vite build",
