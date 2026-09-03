@@ -124,6 +124,11 @@ export default function App() {
     fetchData();
   }, [config.assetUid, config.token, config.serverUrl]);
 
+  const handleSelectTab = (tab) => {
+    setActiveTab(tab);
+    setMapBounds(null);
+  };
+
   // Handle Filter Changes
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -159,12 +164,13 @@ export default function App() {
     let result = attributeFilteredFeatures;
 
     // Spatial Bounding Box Filter (for Table synchronization)
-    if (spatialFilterEnabled && mapBounds) {
+    // Ignore spatial bounds if mobile view is explicitly set to 'table' (map hidden)
+    if (spatialFilterEnabled && mapBounds && mobileSplitView !== 'table') {
       result = filterFeaturesByBounds(result, mapBounds);
     }
 
     return result;
-  }, [attributeFilteredFeatures, spatialFilterEnabled, mapBounds]);
+  }, [attributeFilteredFeatures, spatialFilterEnabled, mapBounds, mobileSplitView]);
 
   // Dashboard KPIs Calculation
   const kpis = useMemo(() => {
@@ -221,7 +227,7 @@ export default function App() {
           localStorage.setItem('kobo_config', JSON.stringify(newCfg));
         }}
         activeTab={activeTab}
-        onSelectTab={setActiveTab}
+        onSelectTab={handleSelectTab}
         onOpenConfig={() => setIsConfigOpen(true)}
         onRefresh={fetchData}
         loading={loading}
@@ -329,7 +335,7 @@ export default function App() {
               activeAssetUid={config.assetUid}
               onSelectFeature={(feat) => {
                 setSelectedFeature(feat);
-                setActiveTab('map');
+                handleSelectTab('map');
               }}
             />
           </main>

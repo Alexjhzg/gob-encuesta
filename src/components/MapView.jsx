@@ -72,20 +72,54 @@ export default function MapView({
 
     // Map Movement event listener for spatial bounding box filter
     const emitBounds = () => {
-      if (!mapInstanceRef.current) return;
-      const b = mapInstanceRef.current.getBounds();
-      onBoundsChange({
-        south: b.getSouth(),
-        west: b.getWest(),
-        north: b.getNorth(),
-        east: b.getEast()
-      });
+      const container = mapContainerRef.current;
+      const map = mapInstanceRef.current;
+      if (!map || !container) return;
+
+      // Do not emit bounds if container is hidden or zero-sized
+      if (container.clientWidth === 0 || container.clientHeight === 0 || container.offsetParent === null) {
+        return;
+      }
+
+      const b = map.getBounds();
+      const s = b.getSouth();
+      const w = b.getWest();
+      const n = b.getNorth();
+      const e = b.getEast();
+
+      if (Math.abs(n - s) > 0.0001 && Math.abs(e - w) > 0.0001) {
+        onBoundsChange({ south: s, west: w, north: n, east: e });
+      }
     };
 
     map.on('moveend', emitBounds);
     map.on('zoomend', emitBounds);
 
+    // ResizeObserver to invalidate Leaflet map size when container becomes visible or resizes
+    const resizeObserver = new ResizeObserver(() => {
+      const map = mapInstanceRef.current;
+      const container = mapContainerRef.current;
+      if (map && container) {
+        if (container.clientWidth > 0 && container.clientHeight > 0 && container.offsetParent !== null) {
+          map.invalidateSize();
+
+          // Refit bounds if markers exist and container just became visible
+          if (markersGroupRef.current && markersGroupRef.current.getLayers().length > 0) {
+            const b = markersGroupRef.current.getBounds();
+            if (b.isValid()) {
+              map.fitBounds(b, { padding: [50, 50], maxZoom: 15 });
+            }
+          }
+        }
+      }
+    });
+
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
+    }
+
     return () => {
+      resizeObserver.disconnect();
       map.off('moveend', emitBounds);
       map.off('zoomend', emitBounds);
       map.remove();
@@ -164,8 +198,9 @@ export default function MapView({
       bounds.extend([lat, lon]);
     });
 
-    // Auto fit bounds to survey points location
-    if (bounds.isValid()) {
+    // Auto fit bounds to survey points location if container is visible
+    const container = mapContainerRef.current;
+    if (bounds.isValid() && container && container.clientWidth > 0 && container.clientHeight > 0 && container.offsetParent !== null) {
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     }
   }, [features]);

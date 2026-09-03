@@ -56,6 +56,11 @@ export function filterFeaturesByBounds(features = [], bounds) {
     return features;
   }
 
+  // Prevent zero-area bounds (e.g. 0x0 container size) from filtering out all features
+  if (Math.abs(north - south) < 0.00001 || Math.abs(east - west) < 0.00001) {
+    return features;
+  }
+
   return features.filter(feature => {
     if (!feature.geometry || feature.geometry.type !== 'Point' || !Array.isArray(feature.geometry.coordinates)) {
       return false;
