@@ -1,156 +1,112 @@
-# 🗺️ GeoSurvey Dashboard - KoboToolbox Spatial Intelligence Platform
+# GeoEncuestas — KoboToolbox Spatial Intelligence Platform
 
 [![React](https://img.shields.io/badge/React-19.0-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-6.1-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Leaflet](https://img.shields.io/badge/Leaflet-1.9-199900?logo=leaflet&logoColor=white)](https://leafletjs.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Python_3.10+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![CI](https://github.com/Alexjhzg/gob-encuesta/actions/workflows/ci.yml/badge.svg)](https://github.com/Alexjhzg/gob-encuesta/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Plataforma de **Inteligencia Territorial y Análisis Geoespacial** desarrollada para procesar, estructurar y visualizar en tiempo real datos recolectados en campo a través de **KoboToolbox API v2**.
+Plataforma full-stack de **Inteligencia Territorial y Análisis Geoespacial** diseñada para ingerir, transformar a GeoJSON (RFC 7946) y visualizar en tiempo real encuestas de campo recolectadas con **KoboToolbox KPI API v2**.
 
-La aplicación transforma respuestas tabulares complejas y coordenadas GPS en mapas interactivos y dashboards analíticos sincronizados con capacidad de filtrado espacial (Bounding Box).
-
----
-
-## 🌟 Características Principales
-
-* 🗺️ **Mapa Geoespacial Interactivo**:
-  * Visualización de encuestas georreferenciadas con **Leaflet** y agrupamiento dinámico mediante **MarkerCluster**.
-  * Soporte para múltiples mapas base (CartoDB Dark/Positron, OpenStreetMap y Satélite ESRI World Imagery).
-  * Drawer de detalle por registro con metadata completa y respuestas individuales.
-* 📊 **Dashboard Analítico Sincronizado**:
-  * Gráficos dinámicos interactivos (**Chart.js**) de distribución por sectores, parroquias y categorías.
-  * Ránking de rendimiento de empadronadores y cálculo automático de KPIs.
-* 🎯 **Filtro Espacial Dinámico (Bounding Box Sync)**:
-  * Sincronización automática de la tabla de datos y métricas según el área geográfica visible en la vista del mapa.
-* 🔄 **Conector API KoboToolbox & Switcher de Activos**:
-  * Conexión con servidores KoboToolbox (KoboToolbox KPI API v2).
-  * Cambio dinámico entre diferentes instrumentos/formularios de encuesta (*Aspectos Políticos*, *Intención de Voto*, etc.).
-  * Modo fallback con datos simulados (Mock Data) cuando no hay conexión a API.
-* 📥 **Exportación de Datos**:
-  * Exportación inmediata de subconjuntos de datos filtrados a formatos **GeoJSON** y **CSV**.
-* 🧪 **Arquitectura Robustecida y Pruebas Unitarias**:
-  * Cobertura de pruebas unitarias y de integración en Frontend (**Vitest**) y Backend (**Pytest**).
+Sincroniza un mapa interactivo (**Leaflet**), una tabla filtrable por **Bounding Box espacial**, fichas detalladas de registro y un dashboard analítico (**Chart.js**) con exportación instantánea a **GeoJSON** y **CSV**.
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+## Características Principales
 
-### **Frontend**
-* **Core**: React 19 + Vite 6
-* **Estilos**: Tailwind CSS v4 + Vanilla CSS
-* **Mapas & GIS**: Leaflet + Leaflet.markercluster
-* **Visualización**: Chart.js + react-chartjs-2
-* **Iconografía**: Lucide React
-* **Testing**: Vitest + Testing Library
-
-### **Backend & Servicios Proxy**
-* **Python API**: FastAPI + Uvicorn + Requests / Pytest
-* **Node.js API**: Express + CORS + Dotenv
+- **Mapa Geoespacial Interactivo**: Pines personalizados por estado/categoría sobre mapas base OpenStreetMap y Satelital (ESRI World Imagery), auto-encuadre (`fitBounds`), `flyTo` al seleccionar registros y popups seguros contra XSS.
+- **Filtro Espacial Dinámico (Bounding Box Sync)**: Al mover o hacer zoom en el mapa, la tabla de registros y los exportadores se sincronizan automáticamente con el área visible.
+- **Dashboard Analítico Sincronizado**: Más de 20 visualizaciones interactivas (**Chart.js**) de demografía (sexo/edad), cobertura territorial por parroquia/sector, intención electoral y evaluación de gestión/servicios.
+- **Modo Demo Instantáneo (Sin Credenciales)**: Si se inicia sin `KOBO_API_TOKEN`, la aplicación activa automáticamente un dataset sintético realista (`?demo=true`) para explorar todas las vistas sin configuración previa.
+- **Backend Proxy Dual & Seguridad**: Servidor principal asíncrono en **FastAPI** (`backend/`) y alternativa en **Express** (`server/`), con protección SSRF (lista blanca de hosts HTTPS), token por cabecera `X-Kobo-Token` y CORS restringido por entorno.
+- **Calidad Automatizada**: 63 pruebas automatizadas (`Vitest` + `Pytest`), `ESLint 9`, `Prettier`, `Ruff` y pipeline CI en GitHub Actions.
 
 ---
 
-## 📂 Estructura del Proyecto
+## Arquitectura y Documentación Técnica
+
+| Documento | Contenido |
+| :--- | :--- |
+| [PRD](docs/PRD.md) | Alcance funcional, personas, requerimientos y métricas de éxito. |
+| [Arquitectura (C4 & ADRs)](docs/ARCHITECTURE.md) | Diagramas Mermaid C4, flujos de datos, topología de despliegue y ADRs. |
+| [Design System](docs/DESIGN_SYSTEM.md) | Tokens dark-first, tipografía Inter, paletas semánticas y patrones responsivos. |
+| [Modelo de Datos](docs/database_model.md) | ERD lógico, esquema GeoJSON RFC 7946, diccionarios territoriales y snapshots. |
+| [Contratos de API](docs/API.md) | Endpoints REST `/api/kobo/*`, parámetros, respuestas y paridad FastAPI/Express. |
+| [Seguridad](SECURITY.md) | Controles aplicados (`SEC-01`–`SEC-06`) y plan de endurecimiento para producción. |
+| [Guía de Estilo](docs/CODE_STYLE.md) | Reglas de ESLint, Prettier, Ruff y `.editorconfig`. |
+
+---
+
+## Inicio Rápido (Modo Demo en 2 minutos)
+
+No necesitas cuenta ni token de KoboToolbox para probar la plataforma:
 
 ```bash
-gob_encuesta/
-├── backend/                  # Servidor Proxy en Python (FastAPI)
-│   ├── geojson_transformer.py # Motor de transformación Kobo JSON -> GeoJSON
-│   ├── kobo_service.py        # Servicio de integración con KoboToolbox API v2
-│   └── main.py                # Endpoints FastAPI
-├── server/                   # Servidor Proxy alternativo en Node.js (Express)
-│   ├── geojsonTransformer.js  # Lógica de transformación JS
-│   ├── koboService.js         # Cliente HTTP Kobo v2
-│   └── index.js               # Entrypoint servidor Express
-├── src/                      # Aplicación Frontend React
-│   ├── components/            # Componentes modulares (Header, Sidebar, MapView, DataTable, DashboardView, RecordDetail, ConfigModal)
-│   ├── services/              # Cliente API de integración
-│   └── utils/                 # Utilidades de filtrado espacial, cálculo de KPIs y exportación
-├── tests/                    # Suite de pruebas Frontend (Vitest)
-├── tests_python/             # Suite de pruebas Backend (Pytest)
-├── .env.example              # Plantilla de variables de entorno
-└── vite.config.js            # Configuración de Vite y Vitest
+# 1. Instalar dependencias Frontend
+npm install
+
+# 2. Crear entorno virtual Python e instalar dependencias Backend
+python3 -m venv venv
+./venv/bin/python -m pip install -r requirements.txt
+
+# 3. Terminal 1 — Levantar Backend FastAPI (puerto 8005)
+npm run server
+
+# 4. Terminal 2 — Levantar Frontend Vite (puerto 5173)
+npm run dev
 ```
 
----
+Abre `http://localhost:5173`. Al no detectar credenciales de KoboToolbox, el sistema cargará automáticamente el **Modo Demo** con datos geoespaciales sintéticos.
 
-## 🚀 Guía de Instalación y Ejecución
-
-### 1. Clonar el repositorio
-
-```bash
-git clone https://github.com/Alexjhzg/gob-encuesta.git
-cd gob-encuesta
-```
-
-### 2. Configurar variables de entorno
-
-Copia la plantilla `.env.example` y crea un archivo `.env`:
+### Conectar con KoboToolbox Real (Opcional)
 
 ```bash
 cp .env.example .env
 ```
 
-Edita `.env` con tus credenciales de KoboToolbox (opcional si usas datos de prueba):
+Configura tus variables en `.env`:
 
 ```env
 KOBO_SERVER_URL=https://kf.kobotoolbox.org
 KOBO_ASSET_UID=tu_kobo_asset_uid
 KOBO_API_TOKEN=tu_kobo_api_token
+ALLOWED_KOBO_HOSTS=kf.kobotoolbox.org,eu.kobotoolbox.org,kobo.humanitarianresponse.info
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 PORT=3001
 ```
 
 ---
 
-### 3. Ejecución del Frontend (React + Vite)
+## Stack Tecnológico
 
-Instala las dependencias y ejecuta el servidor de desarrollo:
-
-```bash
-npm install
-npm run dev
-```
-
-La aplicación estará disponible en `http://localhost:5173`.
+| Capa | Tecnologías |
+| :--- | :--- |
+| **Frontend** | React 19, Vite 6, Tailwind CSS v4, Leaflet, Chart.js (`react-chartjs-2`), Lucide React |
+| **Backend Principal** | Python 3.10+, FastAPI, Uvicorn, HTTPX (async), Pydantic |
+| **Backend Alternativo** | Node.js (ESM), Express, CORS, Dotenv |
+| **Calidad y CI** | Vitest, Supertest, Pytest, ESLint 9, Prettier, Ruff, GitHub Actions |
 
 ---
 
-### 4. Ejecución del Backend (Python / FastAPI)
-
-Crea y activa un entorno virtual de Python:
+## Scripts de Calidad, Build y Pruebas
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
+# Linters y formato
+npm run lint            # ESLint sobre src/, server/ y tests/
+npm run format:check    # Verificación de formato Prettier
+npm run lint:python     # Ruff check sobre backend/, tests_python/ y scripts
+npm run format:python   # Verificación de formato Ruff
 
-Inicia el servidor backend FastAPI:
-
-```bash
-npm run server
-# o bien: python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8005 --reload
+# Pruebas y build
+npm test                # Suite Vitest (Frontend + Express)
+npm run test:python     # Suite Pytest (Backend FastAPI)
+npm run build           # Build de producción en dist/
 ```
 
 ---
 
-## 🧪 Ejecución de Pruebas
+## Licencia
 
-Para asegurar la calidad y consistencia del código, el proyecto incluye pruebas unitarias para el frontend y el backend:
-
-### Pruebas de Frontend (Vitest):
-```bash
-npm run test
-```
-
-### Pruebas de Backend (Pytest):
-```bash
-npm run test:python
-```
-
----
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para obtener más información.
+Este proyecto está bajo la **Licencia MIT**. Consulta [LICENSE](LICENSE) para más detalles.

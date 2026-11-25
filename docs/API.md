@@ -53,7 +53,7 @@ Obtiene los envíos del formulario KoboToolbox especificado y los transforma en 
 | `token` | `string` | `KOBO_API_TOKEN` | Igual | Token de autenticación KoboToolbox. |
 | `limit` | `integer` | `1000` (`1..5000`) | `60` | Cantidad máxima de envíos a solicitar. |
 | `offset` | `integer` | `0` (`>= 0`) | `0` | Desplazamiento para paginación. |
-| `demo` | `boolean` | `false` *(nota: no activa mock en FastAPI actual)* | `'false'` *(activa mock si `'true'` o sin credenciales)* | Solicitud de datos de demostración. |
+| `demo` | `boolean` | `false` *(si es `true`, devuelve datos mock `generate_mock_geojson`)* | `'false'` *(activa mock si `'true'` o sin credenciales)* | Solicitud de datos de demostración. |
 
 > **Diferencia importante entre backends**:
 > - En **FastAPI** (`backend/main.py`), si faltan `token` o `assetUid`, responde `400 Bad Request` (`detail`: `"Credenciales faltantes: Se requiere Token de API y Asset UID de KoboToolbox."`).

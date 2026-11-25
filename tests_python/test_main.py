@@ -22,6 +22,15 @@ def test_data_missing_credentials_endpoint(monkeypatch):
     assert "Credenciales" in data["detail"]
 
 
+def test_data_demo_mode_endpoint():
+    response = client.get("/api/kobo/data?demo=true&limit=25")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["type"] == "FeatureCollection"
+    assert len(data["features"]) == 25
+    assert data["meta"]["is_mock"] is True
+
+
 def test_test_connection_missing_token():
     response = client.post(
         "/api/kobo/test-connection",

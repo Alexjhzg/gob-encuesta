@@ -40,6 +40,7 @@ export default function App() {
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isDemoMode, setIsDemoMode] = useState(import.meta.env.VITE_DEMO_MODE === 'true');
 
   // Raw GeoJSON Feature Collection
   const [rawDataset, setRawDataset] = useState({
@@ -123,15 +124,28 @@ export default function App() {
         assetUid: config.assetUid,
         token: config.token,
         limit: 1000,
-        demo: false
+        demo: isDemoMode
       });
       applyDataset(data, config.assetUid);
+      setIsDemoMode(Boolean(data.meta?.is_mock));
     } catch (err) {
+      if (!isDemoMode && /Credenciales faltantes/i.test(err.message)) {
+        try {
+          const demoData = await getGeoJSONData({ limit: 80, demo: true });
+          applyDataset(demoData, config.assetUid);
+          setIsDemoMode(true);
+          setErrorMessage(null);
+          return;
+        } catch (demoErr) {
+          setErrorMessage(demoErr.message);
+          return;
+        }
+      }
       setErrorMessage(err.message);
     } finally {
       setLoading(false);
     }
-  }, [config.serverUrl, config.assetUid, config.token, applyDataset]);
+  }, [config.serverUrl, config.assetUid, config.token, isDemoMode, applyDataset]);
 
   useEffect(() => {
     let cancelled = false;
@@ -143,13 +157,28 @@ export default function App() {
           assetUid: config.assetUid,
           token: config.token,
           limit: 1000,
-          demo: false
+          demo: isDemoMode
         });
         if (!cancelled) {
           applyDataset(data, config.assetUid);
+          setIsDemoMode(Boolean(data.meta?.is_mock));
           setErrorMessage(null);
         }
       } catch (err) {
+        if (!cancelled && !isDemoMode && /Credenciales faltantes/i.test(err.message)) {
+          try {
+            const demoData = await getGeoJSONData({ limit: 80, demo: true });
+            if (!cancelled) {
+              applyDataset(demoData, config.assetUid);
+              setIsDemoMode(true);
+              setErrorMessage(null);
+            }
+            return;
+          } catch (demoErr) {
+            if (!cancelled) setErrorMessage(demoErr.message);
+            return;
+          }
+        }
         if (!cancelled) {
           setErrorMessage(err.message);
         }
@@ -164,7 +193,7 @@ export default function App() {
     return () => {
       cancelled = true;
     };
-  }, [config.assetUid, config.token, config.serverUrl, applyDataset]);
+  }, [config.assetUid, config.token, config.serverUrl, isDemoMode, applyDataset]);
 
   const handleSelectTab = (tab) => {
     setActiveTab(tab);
@@ -276,6 +305,24 @@ export default function App() {
         onRefresh={fetchData}
         loading={loading}
       />
+
+      {/* Demo Mode Banner */}
+      {isDemoMode && !errorMessage && (
+        <div className="bg-blue-950/90 text-blue-100 border-b border-blue-800/80 px-4 py-1.5 text-xs flex items-center justify-between gap-2">
+          <span>
+            <strong>Modo Demo:</strong> Visualizando datos sintéticos de demostración. Configura{' '}
+            <code className="font-mono text-blue-300">KOBO_API_TOKEN</code> o conecta tu cuenta para
+            datos reales.
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsConfigOpen(true)}
+            className="shrink-0 px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors cursor-pointer"
+          >
+            Configurar API
+          </button>
+        </div>
+      )}
 
       {/* Error Alert Banner */}
       {errorMessage && (

@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from backend.geojson_transformer import transform_kobo_to_geojson
 from backend.kobo_service import fetch_kobo_submissions, validate_kobo_connection
-from backend.mock_data import MOCK_CATEGORIES, MOCK_ENUMERATORS
+from backend.mock_data import MOCK_CATEGORIES, MOCK_ENUMERATORS, generate_mock_geojson
 
 load_dotenv()
 
@@ -63,6 +63,9 @@ async def get_kobo_data(
     offset: int = Query(0, ge=0),
     demo: bool = Query(False),
 ) -> dict[str, Any]:
+    if demo:
+        return generate_mock_geojson(min(limit, 200))
+
     # Read environment variables as fallbacks; prefer X-Kobo-Token header over query param
     eff_server_url = serverUrl or os.getenv("KOBO_SERVER_URL", "https://kf.kobotoolbox.org")
     eff_asset_uid = assetUid or os.getenv("KOBO_ASSET_UID")
