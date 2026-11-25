@@ -16,14 +16,15 @@ export default function SurveyResponseList({ surveyFields = [] }) {
           const formattedVal = formatValueLabel(val);
 
           return (
-            <div key={key} className="bg-slate-50 hover:bg-blue-50/50 p-3 rounded-lg border border-slate-200 transition-colors">
+            <div
+              key={key}
+              className="bg-slate-50 hover:bg-blue-50/50 p-3 rounded-lg border border-slate-200 transition-colors"
+            >
               <div className="text-[11px] font-semibold text-slate-500 mb-1 flex items-center justify-between">
                 <span>{title}</span>
                 <span className="text-[9px] font-mono text-slate-400 font-normal">{key}</span>
               </div>
-              <div className="text-xs font-bold text-slate-900">
-                {formattedVal}
-              </div>
+              <div className="text-xs font-bold text-slate-900">{formattedVal}</div>
             </div>
           );
         })}

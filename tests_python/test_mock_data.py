@@ -1,4 +1,5 @@
-from backend.mock_data import generate_mock_geojson, MOCK_ENUMERATORS, MOCK_CATEGORIES
+from backend.mock_data import MOCK_CATEGORIES, MOCK_ENUMERATORS, generate_mock_geojson
+
 
 def test_generate_mock_geojson():
     count = 20
@@ -12,6 +13,7 @@ def test_generate_mock_geojson():
     assert f0["type"] == "Feature"
     assert f0["geometry"]["type"] == "Point"
     assert len(f0["geometry"]["coordinates"]) == 2
+
 
 def test_mock_options():
     assert isinstance(MOCK_ENUMERATORS, list)

@@ -8,9 +8,15 @@ export default function GeoLocationDetails({ lat, lon, altitude, precision }) {
         Ubicación Geoespacial
       </h4>
       <div className="bg-blue-50/70 p-3.5 rounded-xl border border-blue-200/80 space-y-1 font-mono text-[11px] text-slate-800">
-        <div><strong>Coordenadas:</strong> {formatCoordinates(lat, lon)}</div>
-        <div><strong>Altitud:</strong> {altitude ? `${altitude} m s.n.m.` : 'Estándar'}</div>
-        <div><strong>Precisión GPS:</strong> {precision ? `± ${precision} metros` : 'Estándar'}</div>
+        <div>
+          <strong>Coordenadas:</strong> {formatCoordinates(lat, lon)}
+        </div>
+        <div>
+          <strong>Altitud:</strong> {altitude ? `${altitude} m s.n.m.` : 'Estándar'}
+        </div>
+        <div>
+          <strong>Precisión GPS:</strong> {precision ? `± ${precision} metros` : 'Estándar'}
+        </div>
       </div>
     </div>
   );

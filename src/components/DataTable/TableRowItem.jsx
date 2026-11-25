@@ -1,6 +1,11 @@
 import React from 'react';
 import { User, Eye } from 'lucide-react';
-import { formatDate, formatCoordinates, formatParroquiaName, formatSectorName } from '../../utils/formattersAndFilters.js';
+import {
+  formatDate,
+  formatCoordinates,
+  formatParroquiaName,
+  formatSectorName
+} from '../../utils/formattersAndFilters.js';
 import { extractKeyAnswer } from '../../utils/tableHelpers.js';
 
 export default function TableRowItem({ feature, isSelected, onSelectFeature }) {
@@ -16,18 +21,20 @@ export default function TableRowItem({ feature, isSelected, onSelectFeature }) {
       }`}
     >
       {/* ID */}
-      <td className="py-2.5 px-3.5 font-mono font-bold text-blue-900 whitespace-nowrap">
-        #{p.id}
-      </td>
+      <td className="py-2.5 px-3.5 font-mono font-bold text-blue-900 whitespace-nowrap">#{p.id}</td>
 
       {/* Encuestador */}
       <td className="py-2.5 px-3.5">
         <div className="flex items-center gap-1.5">
           <User size={13} className="text-slate-400 shrink-0" />
           <div>
-            <span className="font-semibold text-slate-900 block leading-tight">{p.submitted_by}</span>
+            <span className="font-semibold text-slate-900 block leading-tight">
+              {p.submitted_by}
+            </span>
             {p['S0/cedula_encuestador'] && (
-              <span className="text-[10px] text-slate-400 font-mono">C.I.: {p['S0/cedula_encuestador']}</span>
+              <span className="text-[10px] text-slate-400 font-mono">
+                C.I.: {p['S0/cedula_encuestador']}
+              </span>
             )}
           </div>
         </div>

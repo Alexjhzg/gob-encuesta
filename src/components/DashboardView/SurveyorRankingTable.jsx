@@ -32,7 +32,9 @@ export default function SurveyorRankingTable({ surveyors = [] }) {
                   <Users size={12} className="text-blue-400 shrink-0" />
                   <span className="truncate">{s.label}</span>
                 </td>
-                <td className="py-2 px-2 text-right font-mono font-bold text-blue-400">{s.count}</td>
+                <td className="py-2 px-2 text-right font-mono font-bold text-blue-400">
+                  {s.count}
+                </td>
                 <td className="py-2 px-2 text-right font-mono text-slate-400">{s.percent}%</td>
               </tr>
             ))}

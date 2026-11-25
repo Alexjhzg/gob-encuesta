@@ -4,7 +4,7 @@
 
 /**
  * Converts features array to stringified GeoJSON FeatureCollection
- * @param {Array<object>} features 
+ * @param {Array<object>} features
  * @returns {string}
  */
 export function exportToGeoJSON(features = []) {
@@ -21,7 +21,7 @@ export function exportToGeoJSON(features = []) {
 
 /**
  * Escapes CSV field value
- * @param {any} val 
+ * @param {any} val
  * @returns {string}
  */
 function escapeCSV(val) {
@@ -32,7 +32,7 @@ function escapeCSV(val) {
 
 /**
  * Converts features array into clean CSV string with headers
- * @param {Array<object>} features 
+ * @param {Array<object>} features
  * @returns {string}
  */
 export function exportToCSV(features = []) {
@@ -78,9 +78,9 @@ export function exportToCSV(features = []) {
 
 /**
  * Triggers a browser file download of string content
- * @param {string} content 
- * @param {string} filename 
- * @param {string} mimeType 
+ * @param {string} content
+ * @param {string} filename
+ * @param {string} mimeType
  */
 export function downloadFile(content, filename, mimeType = 'text/plain') {
   const blob = new Blob([content], { type: mimeType });

@@ -10,11 +10,13 @@ export default function RecordStatusBanner({ estadoAtencion, status }) {
         <ShieldCheck size={18} className="text-emerald-600" />
         <span className="font-semibold text-slate-800 text-xs">Estado de Registro</span>
       </div>
-      <span className={`px-3 py-1 rounded-md font-bold text-xs ${
-        isResolved
-          ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-          : 'bg-amber-100 text-amber-800 border border-amber-300'
-      }`}>
+      <span
+        className={`px-3 py-1 rounded-md font-bold text-xs ${
+          isResolved
+            ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+            : 'bg-amber-100 text-amber-800 border border-amber-300'
+        }`}
+      >
         {estadoAtencion || 'Registrado'}
       </span>
     </div>

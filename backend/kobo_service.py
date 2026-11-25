@@ -1,8 +1,28 @@
 """
 KoboToolbox API v2 Async Service module using httpx for FastAPI.
 """
+
+import ipaddress
+import os
+from typing import Any
+from urllib.parse import urlparse
+
 import httpx
-from typing import Dict, Any, Tuple
+
+DEFAULT_ALLOWED_KOBO_HOSTS = (
+    "kf.kobotoolbox.org",
+    "eu.kobotoolbox.org",
+    "kobo.humanitarianresponse.info",
+)
+
+
+def get_allowed_kobo_hosts() -> set[str]:
+    """Returns the allowlist of permitted KoboToolbox hostnames (SSRF protection)."""
+    raw = os.getenv("ALLOWED_KOBO_HOSTS", "")
+    if raw.strip():
+        return {h.strip().lower() for h in raw.split(",") if h.strip()}
+    return set(DEFAULT_ALLOWED_KOBO_HOSTS)
+
 
 def normalize_server_url(url: str = "https://kf.kobotoolbox.org") -> str:
     cleaned = url.strip()
@@ -10,20 +30,50 @@ def normalize_server_url(url: str = "https://kf.kobotoolbox.org") -> str:
         cleaned = f"https://{cleaned}"
     return cleaned.rstrip("/")
 
+
+def validate_server_url(url: str = "https://kf.kobotoolbox.org") -> str:
+    """Validates and normalizes server URL against scheme, IP and host allowlist rules."""
+    normalized = normalize_server_url(url)
+    parsed = urlparse(normalized)
+
+    if parsed.scheme != "https":
+        raise ValueError("Solo se permiten servidores KoboToolbox sobre HTTPS.")
+
+    hostname = (parsed.hostname or "").lower()
+    if not hostname:
+        raise ValueError("La URL del servidor KoboToolbox no es válida.")
+
+    try:
+        ipaddress.ip_address(hostname)
+        raise ValueError("No se permiten direcciones IP directas como servidor KoboToolbox.")
+    except ValueError as err:
+        if "direcciones IP" in str(err):
+            raise
+
+    allowed_hosts = get_allowed_kobo_hosts()
+    if hostname not in allowed_hosts:
+        raise ValueError(
+            f"Servidor KoboToolbox no permitido ('{hostname}'). "
+            f"Hosts permitidos: {', '.join(sorted(allowed_hosts))}."
+        )
+
+    return normalized
+
+
 async def fetch_kobo_submissions(
     server_url: str,
     asset_uid: str,
     token: str,
     limit: int = 100,
-    offset: int = 0
-) -> Dict[str, Any]:
+    offset: int = 0,
+) -> dict[str, Any]:
     """Async fetch raw submission data from KoboToolbox API v2."""
     if not asset_uid:
         raise ValueError("El identificador del formulario (Asset UID) es requerido.")
     if not token:
         raise ValueError("El token de API de KoboToolbox (KOBO_API_TOKEN) es requerido.")
 
-    base_url = normalize_server_url(server_url)
+    base_url = validate_server_url(server_url)
     endpoint = f"{base_url}/api/v2/assets/{asset_uid}/data/?limit={limit}&offset={offset}"
 
     async with httpx.AsyncClient(timeout=15.0) as client:
@@ -31,8 +81,8 @@ async def fetch_kobo_submissions(
             endpoint,
             headers={
                 "Authorization": f"Token {token}",
-                "Accept": "application/json"
-            }
+                "Accept": "application/json",
+            },
         )
 
         if not response.is_success:
@@ -45,16 +95,21 @@ async def fetch_kobo_submissions(
 
         return response.json()
 
+
 async def validate_kobo_connection(
     server_url: str,
     asset_uid: str,
-    token: str
-) -> Tuple[bool, Dict[str, Any]]:
+    token: str,
+) -> tuple[bool, dict[str, Any]]:
     """Validates connection and returns asset metadata."""
     if not token or not asset_uid:
         return False, {"error": "Token y Asset UID son requeridos."}
 
-    base_url = normalize_server_url(server_url)
+    try:
+        base_url = validate_server_url(server_url)
+    except ValueError as err:
+        return False, {"error": str(err)}
+
     endpoint = f"{base_url}/api/v2/assets/{asset_uid}/"
 
     try:
@@ -63,17 +118,19 @@ async def validate_kobo_connection(
                 endpoint,
                 headers={
                     "Authorization": f"Token {token}",
-                    "Accept": "application/json"
-                }
+                    "Accept": "application/json",
+                },
             )
 
             if response.is_success:
                 asset = response.json()
                 return True, {
                     "name": asset.get("name", "Formulario KoboToolbox"),
-                    "uid": asset.get("uid", asset_uid)
+                    "uid": asset.get("uid", asset_uid),
                 }
             else:
-                return False, {"error": f"Error HTTP {response.status_code}: Autenticación fallida o formulario no existe."}
+                return False, {
+                    "error": f"Error HTTP {response.status_code}: Autenticación fallida o formulario no existe."
+                }
     except Exception as e:
         return False, {"error": f"No se pudo conectar con el servidor Kobo ({base_url}): {str(e)}"}

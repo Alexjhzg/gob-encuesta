@@ -9,7 +9,7 @@ export default function DataTable({
   features = [],
   selectedFeatureId = null,
   onSelectFeature = () => {},
-  pageSize = 15
+  pageSize: _pageSize = 15
 }) {
   const [sortField, setSortField] = useState('id');
   const [sortAsc, setSortAsc] = useState(false);
@@ -43,15 +43,11 @@ export default function DataTable({
       {/* Table Content */}
       <div className="flex-1 overflow-auto">
         <table className="w-full text-left border-collapse text-xs">
-          <TableSortHeader
-            sortField={sortField}
-            sortAsc={sortAsc}
-            onSort={handleSort}
-          />
+          <TableSortHeader sortField={sortField} sortAsc={sortAsc} onSort={handleSort} />
 
           <tbody className="divide-y divide-slate-200 text-slate-800">
             {sortedFeatures.length > 0 ? (
-              sortedFeatures.map(f => (
+              sortedFeatures.map((f) => (
                 <TableRowItem
                   key={f.properties?.id}
                   feature={f}

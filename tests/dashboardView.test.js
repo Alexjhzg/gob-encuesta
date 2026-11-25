@@ -15,7 +15,7 @@ describe('Dashboard Analytics Logic', () => {
       }
     ];
 
-    const surveyors = new Set(mockFeatures.map(f => f.properties.submitted_by));
+    const surveyors = new Set(mockFeatures.map((f) => f.properties.submitted_by));
     expect(surveyors.size).toBe(2);
     expect(surveyors.has('Encuestador A')).toBe(true);
     expect(surveyors.has('Encuestador B')).toBe(true);

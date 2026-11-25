@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Header from './components/Header.jsx';
 import Sidebar from './components/Sidebar.jsx';
 import MapView from './components/MapView.jsx';
@@ -7,9 +7,8 @@ import RecordDetail from './components/RecordDetail.jsx';
 import ConfigModal from './components/ConfigModal.jsx';
 import DashboardView from './components/DashboardView.jsx';
 import LoadingScreen from './components/LoadingScreen.jsx';
-import { getGeoJSONData, getOptions } from './services/api.js';
+import { getGeoJSONData } from './services/api.js';
 import {
-  formatDate,
   filterFeaturesByBounds,
   filterFeaturesByDateRange,
   filterFeaturesByEnumerator,
@@ -24,21 +23,30 @@ import { exportToGeoJSON, exportToCSV, downloadFile } from './utils/exporters.js
 import { AlertCircle, MapPin, Table } from 'lucide-react';
 
 export default function App() {
-  // App Config & Settings
+  // App Config & Settings (token defaults to empty; backend falls back to KOBO_API_TOKEN env var)
   const [config, setConfig] = useState(() => {
-    const saved = localStorage.getItem('kobo_config');
-    return saved ? JSON.parse(saved) : {
+    const defaultConfig = {
       serverUrl: 'https://kf.kobotoolbox.org',
       assetUid: 'aJwBHzgWAqMozzcGLbZjgE',
-      token: '31b028fc8651f10052f1883cf907ea77302d39bf'
+      token: ''
     };
+    try {
+      const saved = localStorage.getItem('kobo_config');
+      return saved ? { ...defaultConfig, ...JSON.parse(saved) } : defaultConfig;
+    } catch {
+      return defaultConfig;
+    }
   });
 
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
   // Raw GeoJSON Feature Collection
-  const [rawDataset, setRawDataset] = useState({ type: 'FeatureCollection', features: [], meta: {} });
+  const [rawDataset, setRawDataset] = useState({
+    type: 'FeatureCollection',
+    features: [],
+    meta: {}
+  });
 
   const [activeTab, setActiveTab] = useState('map'); // 'map' or 'dashboard'
   const [mobileSplitView, setMobileSplitView] = useState('map'); // 'map' or 'table' on mobile
@@ -74,7 +82,39 @@ export default function App() {
   };
 
   // Fetch Dataset from Backend Proxy
-  const fetchData = async () => {
+  const applyDataset = useCallback((data, activeUid) => {
+    setRawDataset(data);
+
+    // Extract unique enumerators, categories, parroquias, and sectors dynamically 100% from dataset
+    const enumSet = new Set();
+    const catSet = new Set();
+    const parSet = new Set();
+    const secSet = new Set();
+
+    (data.features || []).forEach((f) => {
+      const p = f.properties || {};
+      if (p.submitted_by) {
+        const norm = normalizeSurveyorName(p.submitted_by);
+        if (norm) enumSet.add(norm);
+      }
+      if (p.categoria && p.categoria !== 'Encuesta de Campo') {
+        catSet.add(p.categoria);
+      } else {
+        catSet.add(
+          activeUid === 'ajgQTzZcCG3ccEuB8dvNZc' ? 'Aspectos Políticos' : 'Intención de Voto'
+        );
+      }
+      if (p['S1/par']) parSet.add(String(p['S1/par']));
+      if (p['S1/sec']) secSet.add(String(p['S1/sec']));
+    });
+
+    setEnumerators(Array.from(enumSet).sort());
+    setCategories(Array.from(catSet).sort());
+    setParroquias(Array.from(parSet).sort((a, b) => Number(a) - Number(b)));
+    setSectors(Array.from(secSet).sort((a, b) => Number(a) - Number(b)));
+  }, []);
+
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setErrorMessage(null);
     try {
@@ -85,44 +125,46 @@ export default function App() {
         limit: 1000,
         demo: false
       });
-
-      setRawDataset(data);
-
-      // Extract unique enumerators, categories, parroquias, and sectors dynamically 100% from dataset
-      const enumSet = new Set();
-      const catSet = new Set();
-      const parSet = new Set();
-      const secSet = new Set();
-
-      (data.features || []).forEach(f => {
-        const p = f.properties || {};
-        if (p.submitted_by) {
-          const norm = normalizeSurveyorName(p.submitted_by);
-          if (norm) enumSet.add(norm);
-        }
-        if (p.categoria && p.categoria !== 'Encuesta de Campo') {
-          catSet.add(p.categoria);
-        } else {
-          catSet.add(config.assetUid === 'ajgQTzZcCG3ccEuB8dvNZc' ? 'Aspectos Políticos' : 'Intención de Voto');
-        }
-        if (p['S1/par']) parSet.add(String(p['S1/par']));
-        if (p['S1/sec']) secSet.add(String(p['S1/sec']));
-      });
-
-      setEnumerators(Array.from(enumSet).sort());
-      setCategories(Array.from(catSet).sort());
-      setParroquias(Array.from(parSet).sort((a, b) => Number(a) - Number(b)));
-      setSectors(Array.from(secSet).sort((a, b) => Number(a) - Number(b)));
+      applyDataset(data, config.assetUid);
     } catch (err) {
       setErrorMessage(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [config.serverUrl, config.assetUid, config.token, applyDataset]);
 
   useEffect(() => {
-    fetchData();
-  }, [config.assetUid, config.token, config.serverUrl]);
+    let cancelled = false;
+
+    const loadInitial = async () => {
+      try {
+        const data = await getGeoJSONData({
+          serverUrl: config.serverUrl,
+          assetUid: config.assetUid,
+          token: config.token,
+          limit: 1000,
+          demo: false
+        });
+        if (!cancelled) {
+          applyDataset(data, config.assetUid);
+          setErrorMessage(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setErrorMessage(err.message);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadInitial();
+    return () => {
+      cancelled = true;
+    };
+  }, [config.assetUid, config.token, config.serverUrl, applyDataset]);
 
   const handleSelectTab = (tab) => {
     setActiveTab(tab);
@@ -131,7 +173,7 @@ export default function App() {
 
   // Handle Filter Changes
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   // Attribute-filtered Features Pipeline (For Map and Table base)
@@ -182,7 +224,7 @@ export default function App() {
     let minD = null;
     let maxD = null;
 
-    (rawDataset.features || []).forEach(f => {
+    (rawDataset.features || []).forEach((f) => {
       const timeStr = f.properties?.submission_time || f.properties?._submission_time;
       if (timeStr) {
         const dateStr = timeStr.slice(0, 10);
@@ -202,7 +244,11 @@ export default function App() {
   // Export Handlers
   const handleExportGeoJSON = () => {
     const jsonStr = exportToGeoJSON(tableFilteredFeatures);
-    downloadFile(jsonStr, `kobo_surveys_${new Date().toISOString().slice(0, 10)}.geojson`, 'application/json');
+    downloadFile(
+      jsonStr,
+      `kobo_surveys_${new Date().toISOString().slice(0, 10)}.geojson`,
+      'application/json'
+    );
   };
 
   const handleExportCSV = () => {
@@ -213,9 +259,7 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen w-screen bg-slate-950 font-sans text-slate-100 overflow-hidden">
       {/* Full-screen Loading Overlay */}
-      {loading && (
-        <LoadingScreen message="Cargando datos..." />
-      )}
+      {loading && <LoadingScreen message="Cargando datos..." />}
 
       {/* Header with KPIs and Survey Asset selector */}
       <Header
@@ -238,7 +282,9 @@ export default function App() {
         <div className="bg-rose-900/90 text-rose-100 border-b border-rose-800 px-4 py-2 text-xs flex items-center justify-between">
           <div className="flex items-center gap-2">
             <AlertCircle size={16} className="text-rose-400 shrink-0" />
-            <span><strong>Error Kobo API:</strong> {errorMessage}</span>
+            <span>
+              <strong>Error Kobo API:</strong> {errorMessage}
+            </span>
           </div>
         </div>
       )}
@@ -248,7 +294,7 @@ export default function App() {
         {/* Collapsible Sidebar */}
         <Sidebar
           isOpen={sidebarOpen}
-          onToggleOpen={() => setSidebarOpen(prev => !prev)}
+          onToggleOpen={() => setSidebarOpen((prev) => !prev)}
           filters={filters}
           onFilterChange={handleFilterChange}
           enumerators={enumerators}
@@ -344,10 +390,7 @@ export default function App() {
 
       {/* Record Detail Drawer Modal */}
       {selectedFeature && (
-        <RecordDetail
-          feature={selectedFeature}
-          onClose={() => setSelectedFeature(null)}
-        />
+        <RecordDetail feature={selectedFeature} onClose={() => setSelectedFeature(null)} />
       )}
 
       {/* Kobo API Config Modal */}

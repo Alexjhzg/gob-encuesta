@@ -12,25 +12,16 @@ import {
 import {
   BarChart3,
   Users,
-  MapPin,
   TrendingUp,
   Vote,
-  Activity,
   Building2,
-  PieChart as PieIcon,
   ShieldCheck,
   Zap,
   HeartPulse,
-  Flame,
-  Smile,
-  Radio,
   FileText,
   UserCheck,
   Trophy,
-  CheckCircle2,
-  Megaphone,
   HardHat,
-  TrendingDown,
   Gift,
   Info,
   Handshake,
@@ -66,7 +57,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // Demographics
   const sexDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['S2/sexo'];
       if (val === '1_masculino') return 'Masculino';
       if (val === '2_femenino') return 'Femenino';
@@ -80,7 +71,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 1. Candidate preference distribution (Donut)
   const candidateDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_preferencia/si_hoy_tarjeta_electoral'];
       if (val === '1_ernesto_luna') return 'Ernesto Luna';
       if (val === '2_unidad') return 'Candidato Oposición';
@@ -93,7 +84,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 2. Perceived Winner (Donut)
   const perceivedWinnerDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_percibido/cual_candidato_cree'];
       if (val === '1_ernesto_luna') return 'Ernesto Luna (Percepción)';
       if (val === '2_oposicion') return 'Candidato Oposición (Percepción)';
@@ -104,7 +95,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 3. Vote Firmness
   const voteFirmnessDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_voto/cambio_voto'];
       if (val === '1_ult_hora') return 'Puede Cambiar a Última Hora';
       if (val === '2_decidido') return 'Voto Totalmente Decidido';
@@ -114,7 +105,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 4. Propaganda Perception
   const propagandaDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_clima/propaganda'];
       if (val === '1_muchisima') return 'Muchísima';
       if (val === '2_poca') return 'Poca';
@@ -125,7 +116,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 5. Voting Propensity distribution (Donut)
   const propensityDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_propension/si_elecciones_domingo'];
       if (val === '1_def_si') return 'Definitivamente Sí';
       if (val === '2_prob_si') return 'Probablemente Sí';
@@ -138,7 +129,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 6. Political Tendency distribution (Bar)
   const tendencyDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_identificación/tendencia_politica'];
       if (val === '1_psuv') return 'PSUV / Oficialismo';
       if (val === '2_oposicion_democratica') return 'Oposición Democrática';
@@ -151,12 +142,12 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 7. Parroquia distribution (Bar)
   const parroquiaDistribution = useMemo(() => {
-    return computeDistribution(features, p => formatParroquiaName(p['S1/par']));
+    return computeDistribution(features, (p) => formatParroquiaName(p['S1/par']));
   }, [features]);
 
   // 8. Gestión evaluation distribution (Bar)
   const gestionDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_gestion/gestion'];
       if (val === '1_excelente') return 'Excelente';
       if (val === '2_buena') return 'Buena';
@@ -169,7 +160,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 9. Principal Motivation distribution (Bar)
   const motivationDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_motivacion/principal_motivacion'];
       if (val === '1_ratificar') return 'Ratificar Gestión';
       if (val === '2_castigar') return 'Buscar Cambio / Castigar';
@@ -182,7 +173,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 10. Electoral Confidence level distribution (Bar)
   const confidenceDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_transparencia/nivel_confianza'];
       if (val === '1_alta') return 'Alta Confianza';
       if (val === '2_mediana') return 'Mediana Confianza';
@@ -194,7 +185,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 11. Population Mood distribution (Bar)
   const moodDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['g_preguntas/g_animo/animo'];
       if (val === '1_esperanza') return 'Esperanza';
       if (val === '2_escepticismo') return 'Escepticismo';
@@ -206,7 +197,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 12. Public Services evaluation distribution (Bar)
   const publicServicesDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_servicios_publicos/servicios_publicos'];
       if (val === '1_mejorado_notablemente') return 'Mejorado Notablemente';
       if (val === '2_mejorado_poco') return 'Mejorado Poco';
@@ -219,7 +210,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 13. Health Services distribution (Bar)
   const healthDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_salud/salud'];
       if (val === '1_muy_buena') return 'Muy Buena';
       if (val === '2_buena') return 'Buena';
@@ -232,7 +223,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 14. Security distribution (Bar)
   const securityDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_seguridad/seguridad'];
       if (val === '1_muy_seguros') return 'Muy Seguros';
       if (val === '2_seguros') return 'Seguros';
@@ -245,7 +236,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 15. Infrastructure
   const infrastructureDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_infraestructura/infraestructura'];
       if (val === '1_muy_favorable') return 'Muy Favorable';
       if (val === '2_favorable') return 'Favorable';
@@ -258,7 +249,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 16. Economic Development
   const economicDevelopmentDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_desarrollo_economico/desarrollo_economico'];
       if (val === '1_totalmente_deacuerdo') return 'Totalmente de Acuerdo';
       if (val === '2_deacuerdo') return 'De Acuerdo';
@@ -271,7 +262,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 17. Social Programs
   const socialProgramsDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_programas_sociales/programas_sociales'];
       if (val === '1_siempre') return 'Siempre';
       if (val === '2_casi_siempre') return 'Casi Siempre';
@@ -284,7 +275,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 18. Transparency & Information
   const transparencyDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_transparencia/transparencia'];
       if (val === '1_muy_informados') return 'Muy Informados';
       if (val === '2_informado') return 'Informado';
@@ -297,8 +288,9 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 19. Citizen Participation
   const citizenParticipationDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
-      const val = p['aspectos_politicos_sociales/g_participación_ciudadana/participación_ciudadana'];
+    return computeDistribution(features, (p) => {
+      const val =
+        p['aspectos_politicos_sociales/g_participación_ciudadana/participación_ciudadana'];
       if (val === '1_muy_efectivos') return 'Muy Efectivos';
       if (val === '2_medianamente_efectivos') return 'Medianamente Efectivos';
       if (val === '3_poco_efectivos') return 'Poco Efectivos';
@@ -310,7 +302,7 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // 20. Approval & Trust
   const approvalDistribution = useMemo(() => {
-    return computeDistribution(features, p => {
+    return computeDistribution(features, (p) => {
       const val = p['aspectos_politicos_sociales/g_aprobacion/aprobacion'];
       if (val === '1_alta_confianza') return 'Alta Confianza';
       if (val === '2_confianza_media') return 'Confianza Media';
@@ -323,13 +315,13 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
 
   // Surveyor ranking
   const surveyorDistribution = useMemo(() => {
-    return computeDistribution(features, p => p.submitted_by || 'Desconocido');
+    return computeDistribution(features, (p) => p.submitted_by || 'Desconocido');
   }, [features]);
 
   // Color Mappings per Option
   const sexColors = {
-    'Masculino': '#3b82f6',
-    'Femenino': '#ec4899'
+    Masculino: '#3b82f6',
+    Femenino: '#ec4899'
   };
 
   const candidateColors = {
@@ -352,9 +344,9 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
   };
 
   const propagandaColors = {
-    'Muchísima': '#3b82f6',
-    'Poca': '#f59e0b',
-    'Ninguna': '#64748b'
+    Muchísima: '#3b82f6',
+    Poca: '#f59e0b',
+    Ninguna: '#64748b'
   };
 
   const propensityColors = {
@@ -389,25 +381,25 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
   };
 
   const moodColors = {
-    'Esperanza': '#10b981',
-    'Escepticismo': '#3b82f6',
-    'Frustración': '#ef4444',
-    'Incertidumbre': '#f59e0b'
+    Esperanza: '#10b981',
+    Escepticismo: '#3b82f6',
+    Frustración: '#ef4444',
+    Incertidumbre: '#f59e0b'
   };
 
   const evaluationColors = {
-    'Excelente': '#10b981',
-    'Buena': '#3b82f6',
-    'Regular': '#f59e0b',
-    'Malo': '#f97316',
+    Excelente: '#10b981',
+    Buena: '#3b82f6',
+    Regular: '#f59e0b',
+    Malo: '#f97316',
     'Muy Malo': '#ef4444'
   };
 
   const healthColors = {
     'Muy Buena': '#10b981',
-    'Buena': '#3b82f6',
-    'Regular': '#f59e0b',
-    'Mala': '#f97316',
+    Buena: '#3b82f6',
+    Regular: '#f59e0b',
+    Mala: '#f97316',
     'Muy Mala': '#ef4444'
   };
 
@@ -415,23 +407,23 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
     'Mejorado Notablemente': '#10b981',
     'Mejorado Poco': '#3b82f6',
     'Sigue Igual': '#f59e0b',
-    'Empeorado': '#f97316',
+    Empeorado: '#f97316',
     'Empeorado Drásticamente': '#ef4444'
   };
 
   const securityColors = {
     'Muy Seguros': '#10b981',
-    'Seguros': '#3b82f6',
+    Seguros: '#3b82f6',
     'Ni Seguros ni Inseguros': '#f59e0b',
-    'Inseguros': '#f97316',
+    Inseguros: '#f97316',
     'Muy Inseguros': '#ef4444'
   };
 
   const scaleColors = {
     'Muy Favorable': '#10b981',
-    'Favorable': '#3b82f6',
-    'Indiferente': '#f59e0b',
-    'Desfavorable': '#f97316',
+    Favorable: '#3b82f6',
+    Indiferente: '#f59e0b',
+    Desfavorable: '#f97316',
     'Muy Desfavorable': '#ef4444',
 
     'Totalmente de Acuerdo': '#10b981',
@@ -440,14 +432,14 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
     'En Desacuerdo': '#f97316',
     'Totalmente en Desacuerdo': '#ef4444',
 
-    'Siempre': '#10b981',
+    Siempre: '#10b981',
     'Casi Siempre': '#3b82f6',
     'Algunas Veces': '#f59e0b',
     'Casi Nunca': '#f97316',
-    'Nunca': '#ef4444',
+    Nunca: '#ef4444',
 
     'Muy Informados': '#10b981',
-    'Informado': '#3b82f6',
+    Informado: '#3b82f6',
     'Poco Informado': '#f59e0b',
     'Nada Informado': '#f97316',
     'No Sabe / No Responde': '#64748b',
@@ -474,8 +466,12 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
             <FileText size={22} />
           </div>
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400">Resultados y Análisis de Encuesta</span>
-            <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">{surveyTitle}</h2>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400">
+              Resultados y Análisis de Encuesta
+            </span>
+            <h2 className="text-base sm:text-lg font-extrabold text-white tracking-tight">
+              {surveyTitle}
+            </h2>
           </div>
         </div>
         <div className="flex items-center gap-2 text-xs font-semibold px-3 py-1 bg-slate-800 text-slate-300 rounded-lg border border-slate-700">
@@ -523,7 +519,11 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
               </div>
               <span className="text-xs text-slate-400 font-mono">Demografía</span>
             </div>
-            <DonutChartCard data={sexDistribution} customColors={sexColors} centerLabel="Encuestados" />
+            <DonutChartCard
+              data={sexDistribution}
+              customColors={sexColors}
+              centerLabel="Encuestados"
+            />
           </div>
         )}
 
@@ -546,7 +546,9 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2">
                 <Vote className="text-blue-400" size={18} />
-                <h3 className="font-bold text-slate-100 text-sm">Intención de Voto por Candidato</h3>
+                <h3 className="font-bold text-slate-100 text-sm">
+                  Intención de Voto por Candidato
+                </h3>
               </div>
               <span className="text-xs text-slate-400 font-mono">Encuesta Electoral</span>
             </div>
@@ -707,7 +709,10 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
               </div>
               <span className="text-xs text-slate-400 font-mono">Percepción Económica</span>
             </div>
-            <DistributionBarList data={economicDevelopmentDistribution} customColors={scaleColors} />
+            <DistributionBarList
+              data={economicDevelopmentDistribution}
+              customColors={scaleColors}
+            />
           </div>
         )}
 
@@ -749,7 +754,10 @@ export default function DashboardView({ features = [], activeAssetUid = '' }) {
               </div>
               <span className="text-xs text-slate-400 font-mono">Efectividad Mecanismos</span>
             </div>
-            <DistributionBarList data={citizenParticipationDistribution} customColors={scaleColors} />
+            <DistributionBarList
+              data={citizenParticipationDistribution}
+              customColors={scaleColors}
+            />
           </div>
         )}
 

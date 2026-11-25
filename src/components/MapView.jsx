@@ -10,20 +10,91 @@ delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
   iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png'
 });
+
+function buildSafePopupContent(feature, lat, lon, onSelect) {
+  const p = feature.properties || {};
+  const isResolved = p.estado_atencion === 'Resuelto' || p.status === 'approved';
+  const statusBadgeClass = isResolved
+    ? 'bg-emerald-100 text-emerald-800'
+    : 'bg-amber-100 text-amber-800';
+
+  const container = document.createElement('div');
+  container.className = 'w-60 p-1 font-sans text-slate-900';
+
+  const header = document.createElement('div');
+  header.className = 'flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100';
+
+  const titleSpan = document.createElement('span');
+  titleSpan.className = 'font-bold text-xs text-slate-900';
+  titleSpan.textContent = `Encuesta #${p.id ?? 'N/A'}`;
+
+  const badgeSpan = document.createElement('span');
+  badgeSpan.className = `text-[10px] font-bold px-2 py-0.5 rounded ${statusBadgeClass}`;
+  badgeSpan.textContent = String(p.estado_atencion || 'Registrado');
+
+  header.append(titleSpan, badgeSpan);
+  container.appendChild(header);
+
+  const metaList = document.createElement('div');
+  metaList.className = 'text-[11px] text-slate-700 space-y-1 mb-2';
+
+  const rows = [
+    ['Categoría:', String(p.categoria || 'General')],
+    ['Encuestador:', String(p.submitted_by || 'N/A')],
+    ['Fecha:', formatDate(p.submission_time)],
+    ['Coordenadas:', formatCoordinates(lat, lon)]
+  ];
+
+  rows.forEach(([label, value]) => {
+    const row = document.createElement('div');
+    const lbl = document.createElement('span');
+    lbl.className = 'font-semibold text-slate-900';
+    lbl.textContent = `${label} `;
+    row.appendChild(lbl);
+    row.appendChild(document.createTextNode(value));
+    metaList.appendChild(row);
+  });
+  container.appendChild(metaList);
+
+  if (p.observaciones) {
+    const obsBox = document.createElement('div');
+    obsBox.className =
+      'text-[11px] text-slate-600 bg-slate-50 p-2 rounded border border-slate-200 mb-2 max-h-14 overflow-y-auto italic';
+    obsBox.textContent = `"${String(p.observaciones)}"`;
+    container.appendChild(obsBox);
+  }
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className =
+    'w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 px-2 rounded text-xs shadow-sm transition-colors cursor-pointer';
+  btn.textContent = 'Ver Ficha Completa';
+  btn.addEventListener('click', () => onSelect(feature));
+  container.appendChild(btn);
+
+  return container;
+}
 
 export default function MapView({
   features = [],
   selectedFeatureId = null,
   onSelectFeature = () => {},
   onBoundsChange = () => {},
-  spatialFilterEnabled = true
+  spatialFilterEnabled: _spatialFilterEnabled = true
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersGroupRef = useRef(null);
   const markersMapRef = useRef(new Map());
+  const onSelectFeatureRef = useRef(onSelectFeature);
+  const onBoundsChangeRef = useRef(onBoundsChange);
+
+  useEffect(() => {
+    onSelectFeatureRef.current = onSelectFeature;
+    onBoundsChangeRef.current = onBoundsChange;
+  }, [onSelectFeature, onBoundsChange]);
 
   // Initialize Map
   useEffect(() => {
@@ -40,13 +111,11 @@ export default function MapView({
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     // Tile Layers (No API Key Required)
-    const osmLayer = L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19
-      }
-    );
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    });
 
     const esriSatLayer = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
@@ -60,8 +129,8 @@ export default function MapView({
 
     // Layer switcher control
     const baseMaps = {
-      "OpenStreetMap": osmLayer,
-      "Satelital": esriSatLayer
+      OpenStreetMap: osmLayer,
+      Satelital: esriSatLayer
     };
     L.control.layers(baseMaps, null, { position: 'topleft' }).addTo(map);
 
@@ -77,7 +146,11 @@ export default function MapView({
       if (!map || !container) return;
 
       // Do not emit bounds if container is hidden or zero-sized
-      if (container.clientWidth === 0 || container.clientHeight === 0 || container.offsetParent === null) {
+      if (
+        container.clientWidth === 0 ||
+        container.clientHeight === 0 ||
+        container.offsetParent === null
+      ) {
         return;
       }
 
@@ -88,7 +161,7 @@ export default function MapView({
       const e = b.getEast();
 
       if (Math.abs(n - s) > 0.0001 && Math.abs(e - w) > 0.0001) {
-        onBoundsChange({ south: s, west: w, north: n, east: e });
+        onBoundsChangeRef.current({ south: s, west: w, north: n, east: e });
       }
     };
 
@@ -100,7 +173,11 @@ export default function MapView({
       const map = mapInstanceRef.current;
       const container = mapContainerRef.current;
       if (map && container) {
-        if (container.clientWidth > 0 && container.clientHeight > 0 && container.offsetParent !== null) {
+        if (
+          container.clientWidth > 0 &&
+          container.clientHeight > 0 &&
+          container.offsetParent !== null
+        ) {
           map.invalidateSize();
 
           // Refit bounds if markers exist and container just became visible
@@ -145,52 +222,16 @@ export default function MapView({
       if (lat === undefined || lon === undefined) return;
 
       const p = feature.properties || {};
-      const pinIcon = createCustomPinIcon(p.categoria, p.estado_atencion);
+      const pinIcon = createCustomPinIcon(p.categoria, p.estado_atencion, L);
       const marker = L.marker([lat, lon], { icon: pinIcon });
 
-      const isResolved = p.estado_atencion === 'Resuelto' || p.status === 'approved';
-      const statusBadgeClass = isResolved ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800';
-
-      // Build interactive popup content using pure Tailwind classes
-      const popupContent = document.createElement('div');
-      popupContent.className = 'w-60 p-1 font-sans text-slate-900';
-      popupContent.innerHTML = `
-        <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-100">
-          <span class="font-bold text-xs text-slate-900">Encuesta #${p.id || 'N/A'}</span>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded ${statusBadgeClass}">
-            ${p.estado_atencion || 'Registrado'}
-          </span>
-        </div>
-
-        <div class="text-[11px] text-slate-700 space-y-1 mb-2">
-          <div><span class="font-semibold text-slate-900">Categoría:</span> ${p.categoria || 'General'}</div>
-          <div><span class="font-semibold text-slate-900">Encuestador:</span> ${p.submitted_by || 'N/A'}</div>
-          <div><span class="font-semibold text-slate-900">Fecha:</span> ${formatDate(p.submission_time)}</div>
-          <div><span class="font-semibold text-slate-900">Coordenadas:</span> ${formatCoordinates(lat, lon)}</div>
-        </div>
-
-        ${p.observaciones ? `
-          <div class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded border border-slate-200 mb-2 max-h-14 overflow-y-auto italic">
-            "${p.observaciones}"
-          </div>
-        ` : ''}
-
-        <button id="btn-popup-detail-${p.id}" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1.5 px-2 rounded text-xs shadow-sm transition-colors cursor-pointer">
-          Ver Ficha Completa
-        </button>
-      `;
-
-      // Attach click handler to popup button
+      const popupContent = buildSafePopupContent(feature, lat, lon, (selected) =>
+        onSelectFeatureRef.current(selected)
+      );
       marker.bindPopup(popupContent);
-      marker.on('popupopen', () => {
-        const btn = document.getElementById(`btn-popup-detail-${p.id}`);
-        if (btn) {
-          btn.onclick = () => onSelectFeature(feature);
-        }
-      });
 
       marker.on('click', () => {
-        onSelectFeature(feature);
+        onSelectFeatureRef.current(feature);
       });
 
       markersGroup.addLayer(marker);
@@ -200,7 +241,13 @@ export default function MapView({
 
     // Auto fit bounds to survey points location if container is visible
     const container = mapContainerRef.current;
-    if (bounds.isValid() && container && container.clientWidth > 0 && container.clientHeight > 0 && container.offsetParent !== null) {
+    if (
+      bounds.isValid() &&
+      container &&
+      container.clientWidth > 0 &&
+      container.clientHeight > 0 &&
+      container.offsetParent !== null
+    ) {
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
     }
   }, [features]);
@@ -222,7 +269,7 @@ export default function MapView({
     if (!map || !features || features.length === 0) return;
 
     const bounds = L.latLngBounds();
-    features.forEach(f => {
+    features.forEach((f) => {
       const [lon, lat] = f.geometry?.coordinates || [];
       if (lat !== undefined && lon !== undefined) {
         bounds.extend([lat, lon]);

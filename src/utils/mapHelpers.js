@@ -12,7 +12,7 @@ export function getPinBgClass(category, status) {
 /**
  * Creates custom Pin Marker using Leaflet DivIcon
  */
-export function createCustomPinIcon(category, status) {
+export function createCustomPinIcon(category, status, leafletLib = null) {
   const bgClass = getPinBgClass(category, status);
 
   const html = `
@@ -25,8 +25,11 @@ export function createCustomPinIcon(category, status) {
     return { html, className: 'custom-map-pin border-0 bg-transparent' };
   }
 
-  // Dynamic import/require fallback when running in browser environment
-  const L = window.L || require('leaflet');
+  const L = leafletLib || window.L;
+  if (!L) {
+    return { html, className: 'custom-map-pin border-0 bg-transparent' };
+  }
+
   return L.divIcon({
     html,
     className: 'custom-map-pin border-0 bg-transparent',

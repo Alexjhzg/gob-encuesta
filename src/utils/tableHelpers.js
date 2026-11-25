@@ -5,8 +5,10 @@ export function extractKeyAnswer(p = {}) {
   // Check Candidate Preference
   const candidate = p['g_preguntas/g_preferencia/si_hoy_tarjeta_electoral'];
   if (candidate) {
-    if (candidate === '1_ernesto_luna') return { label: 'Ernesto Luna', color: 'bg-blue-100 text-blue-800' };
-    if (candidate === '5_indeciso') return { label: 'Indeciso', color: 'bg-amber-100 text-amber-800' };
+    if (candidate === '1_ernesto_luna')
+      return { label: 'Ernesto Luna', color: 'bg-blue-100 text-blue-800' };
+    if (candidate === '5_indeciso')
+      return { label: 'Indeciso', color: 'bg-amber-100 text-amber-800' };
     if (candidate === '3_otro') return { label: 'Otro', color: 'bg-slate-100 text-slate-800' };
   }
 
@@ -21,7 +23,9 @@ export function extractKeyAnswer(p = {}) {
     } else if (gestion === '4_malo' || gestion === '5_muy_malo') {
       color = 'bg-rose-100 text-rose-800'; // Rojo para Malo / Muy Malo
     }
-    const cleaned = String(gestion).replace(/^[0-9]+_/, '').replace(/_/g, ' ');
+    const cleaned = String(gestion)
+      .replace(/^[0-9]+_/, '')
+      .replace(/_/g, ' ');
     const cap = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
     return { label: `Gestión: ${cap}`, color };
   }
@@ -29,8 +33,10 @@ export function extractKeyAnswer(p = {}) {
   // Check Propensión
   const propension = p['g_preguntas/g_propension/si_elecciones_domingo'];
   if (propension) {
-    if (propension === '1_def_si') return { label: 'Votará: Def. Sí', color: 'bg-emerald-100 text-emerald-800' };
-    if (propension === '2_prob_si') return { label: 'Votará: Prob. Sí', color: 'bg-blue-100 text-blue-800' };
+    if (propension === '1_def_si')
+      return { label: 'Votará: Def. Sí', color: 'bg-emerald-100 text-emerald-800' };
+    if (propension === '2_prob_si')
+      return { label: 'Votará: Prob. Sí', color: 'bg-blue-100 text-blue-800' };
   }
 
   return { label: p.categoria || 'Registrado', color: 'bg-slate-100 text-slate-700' };

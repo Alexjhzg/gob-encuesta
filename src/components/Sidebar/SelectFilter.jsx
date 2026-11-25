@@ -22,8 +22,10 @@ export default function SelectFilter({
         className="w-full bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-slate-200 focus:outline-none focus:border-blue-500"
       >
         <option value="ALL">{allOptionLabel}</option>
-        {options.map(opt => (
-          <option key={opt} value={opt}>{formatter(opt)}</option>
+        {options.map((opt) => (
+          <option key={opt} value={opt}>
+            {formatter(opt)}
+          </option>
         ))}
       </select>
     </div>

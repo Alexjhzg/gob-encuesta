@@ -32,7 +32,8 @@ export const QUESTION_LABELS = {
   'aspectos_politicos_sociales/g_seguridad/seguridad': 'Seguridad Ciudadana',
   'aspectos_politicos_sociales/g_programas_sociales/programas_sociales': 'Programas Sociales',
   'aspectos_politicos_sociales/g_transparencia/transparencia': 'Transparencia de Información',
-  'aspectos_politicos_sociales/g_participación_ciudadana/participación_ciudadana': 'Participación Ciudadana',
+  'aspectos_politicos_sociales/g_participación_ciudadana/participación_ciudadana':
+    'Participación Ciudadana',
   'aspectos_politicos_sociales/g_aprobacion/aprobacion': 'Aprobación y Confianza'
 };
 
@@ -40,8 +41,8 @@ const VALUE_LABEL_MAP = {
   // Demográficos
   '1_masculino': 'Masculino',
   '2_femenino': 'Femenino',
-  '1': 'Sí (Inscrito en CNE)',
-  '2': 'No (No Inscrito)',
+  1: 'Sí (Inscrito en CNE)',
+  2: 'No (No Inscrito)',
 
   // Propensión & Candidato Preferido
   '1_def_si': 'Definitivamente Sí',
@@ -162,7 +163,26 @@ export function formatValueLabel(val) {
   return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
 }
 
-const IGNORED_PREFIXES = ['_', 'meta/', 'formhub/', 'deviceid', 'today', 'start', 'end', 'id', 'uuid', 'status', 'latitude', 'longitude', 'altitude', 'precision', 'categoria', 'estado_atencion', 'observaciones', '__version__'];
+const IGNORED_PREFIXES = [
+  '_',
+  'meta/',
+  'formhub/',
+  'deviceid',
+  'today',
+  'start',
+  'end',
+  'id',
+  'uuid',
+  'status',
+  'latitude',
+  'longitude',
+  'altitude',
+  'precision',
+  'categoria',
+  'estado_atencion',
+  'observaciones',
+  '__version__'
+];
 
 /**
  * Extract all survey response key-value pairs (excluding system fields)
@@ -170,6 +190,6 @@ const IGNORED_PREFIXES = ['_', 'meta/', 'formhub/', 'deviceid', 'today', 'start'
 export function extractSurveyFields(properties = {}) {
   return Object.entries(properties).filter(([key, val]) => {
     if (!val && val !== 0) return false;
-    return !IGNORED_PREFIXES.some(pref => key.startsWith(pref) || key === pref);
+    return !IGNORED_PREFIXES.some((pref) => key.startsWith(pref) || key === pref);
   });
 }

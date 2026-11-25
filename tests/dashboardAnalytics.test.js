@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { computeDistribution, formatBarChartData, computeAgeDistribution, COLOR_PALETTES } from '../src/utils/dashboardAnalytics.js';
+import {
+  computeDistribution,
+  formatBarChartData,
+  computeAgeDistribution,
+  COLOR_PALETTES
+} from '../src/utils/dashboardAnalytics.js';
 
 describe('Dashboard Analytics Helpers', () => {
   it('computes distribution counts and percentages correctly', () => {
@@ -10,7 +15,7 @@ describe('Dashboard Analytics Helpers', () => {
       { properties: { candidate: null } }
     ];
 
-    const distribution = computeDistribution(mockFeatures, p => p.candidate);
+    const distribution = computeDistribution(mockFeatures, (p) => p.candidate);
     expect(distribution).toEqual([
       { label: 'Ernesto Luna', count: 2, percent: '66.7' },
       { label: 'Oposición', count: 1, percent: '33.3' }
@@ -42,7 +47,7 @@ describe('Dashboard Analytics Helpers', () => {
     ];
 
     const customColors = {
-      'Excelente': '#10b981',
+      Excelente: '#10b981',
       'Muy Malo': '#ef4444'
     };
 
@@ -53,7 +58,7 @@ describe('Dashboard Analytics Helpers', () => {
   });
 
   it('returns empty array when no valid values match', () => {
-    const distribution = computeDistribution([], p => p.foo);
+    const distribution = computeDistribution([], (p) => p.foo);
     expect(distribution).toEqual([]);
   });
 

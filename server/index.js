@@ -16,7 +16,18 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://127.0.0.1:5173')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: corsOrigins,
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'X-Kobo-Token', 'Authorization']
+  })
+);
 app.use(express.json());
 
 // Serve static frontend assets if built
@@ -38,11 +49,13 @@ app.get('/api/kobo/data', async (req, res) => {
     const {
       serverUrl = process.env.KOBO_SERVER_URL || 'https://kf.kobotoolbox.org',
       assetUid = process.env.KOBO_ASSET_UID,
-      token = process.env.KOBO_API_TOKEN,
+      token: queryToken,
       limit = '60',
       offset = '0',
       demo = 'false'
     } = req.query;
+
+    const token = req.get('x-kobo-token') || queryToken || process.env.KOBO_API_TOKEN;
 
     const parsedLimit = parseInt(limit, 10) || 60;
     const parsedOffset = parseInt(offset, 10) || 0;

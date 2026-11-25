@@ -1,10 +1,12 @@
 """
 KoboToolbox Geopoint to GeoJSON FeatureCollection Transformer module for Python FastAPI.
 """
-from datetime import datetime, timezone
-from typing import List, Dict, Any, Optional
 
-def parse_geopoint(value: Any) -> Optional[Dict[str, Any]]:
+from datetime import datetime, timezone
+from typing import Any
+
+
+def parse_geopoint(value: Any) -> dict[str, Any] | None:
     """
     Parses Kobo geopoint format (string 'lat lon alt precision' or list [lat, lon])
     Returns dict with latitude, longitude, altitude, precision and coordinates [lon, lat].
@@ -54,11 +56,11 @@ def parse_geopoint(value: Any) -> Optional[Dict[str, Any]]:
         "longitude": lon,
         "altitude": alt,
         "precision": precision,
-        "coordinates": [lon, lat]  # GeoJSON format: [longitude, latitude]
+        "coordinates": [lon, lat],  # GeoJSON format: [longitude, latitude]
     }
 
 
-def find_geopoint(submission: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def find_geopoint(submission: dict[str, Any]) -> dict[str, Any] | None:
     """Inspects submission keys for geopoint information."""
     if not isinstance(submission, dict):
         return None
@@ -71,7 +73,7 @@ def find_geopoint(submission: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         "geopoint",
         "_geopoint",
         "gps",
-        "coordenadas"
+        "coordenadas",
     ]
 
     for key in known_keys:
@@ -89,7 +91,9 @@ def find_geopoint(submission: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     return None
 
 
-def transform_kobo_to_geojson(raw_submissions: List[Dict[str, Any]], options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def transform_kobo_to_geojson(
+    raw_submissions: list[dict[str, Any]], options: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Transforms raw Kobo submissions list into a standard GeoJSON FeatureCollection."""
     if options is None:
         options = {}
@@ -125,7 +129,10 @@ def transform_kobo_to_geojson(raw_submissions: List[Dict[str, Any]], options: Op
                     survey_cat = "Aspectos Políticos"
                 elif any("aspectos_politicos" in k for k in item.keys()):
                     survey_cat = "Aspectos Políticos"
-                elif any(k.startswith("g_preguntas/") or k.startswith("g_filtro/") or k.startswith("S2/") for k in item.keys()):
+                elif any(
+                    k.startswith("g_preguntas/") or k.startswith("g_filtro/") or k.startswith("S2/")
+                    for k in item.keys()
+                ):
                     survey_cat = "Intención de Voto"
                 else:
                     survey_cat = options.get("form_title") or "Intención de Voto"
@@ -134,7 +141,9 @@ def transform_kobo_to_geojson(raw_submissions: List[Dict[str, Any]], options: Op
                 **item,
                 "id": item.get("_id") or item.get("id") or f"sub_{geocoded_count}",
                 "submitted_by": str(surveyor_name).strip(),
-                "submission_time": item.get("_submission_time") or item.get("submission_time") or datetime.now(timezone.utc).isoformat(),
+                "submission_time": item.get("_submission_time")
+                or item.get("submission_time")
+                or datetime.now(timezone.utc).isoformat(),
                 "uuid": item.get("_uuid") or item.get("uuid"),
                 "status": item.get("_status") or item.get("status") or "submitted",
                 "latitude": lat,
@@ -142,18 +151,22 @@ def transform_kobo_to_geojson(raw_submissions: List[Dict[str, Any]], options: Op
                 "altitude": geo["altitude"],
                 "precision": geo["precision"],
                 "categoria": survey_cat,
-                "estado_atencion": item.get("estado_atencion") or item.get("estado") or "Registrado",
-                "observaciones": item.get("observaciones") or item.get("observacion") or item.get("notes") or ""
+                "estado_atencion": item.get("estado_atencion")
+                or item.get("estado")
+                or "Registrado",
+                "observaciones": item.get("observaciones")
+                or item.get("observacion")
+                or item.get("notes")
+                or "",
             }
 
-            features.append({
-                "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": geo["coordinates"]
-                },
-                "properties": properties
-            })
+            features.append(
+                {
+                    "type": "Feature",
+                    "geometry": {"type": "Point", "coordinates": geo["coordinates"]},
+                    "properties": properties,
+                }
+            )
         else:
             non_geocoded_count += 1
 
@@ -166,6 +179,6 @@ def transform_kobo_to_geojson(raw_submissions: List[Dict[str, Any]], options: Op
             "non_geocoded_count": non_geocoded_count,
             "limit": options.get("limit", len(raw_submissions)),
             "offset": options.get("offset", 0),
-            "timestamp": datetime.now(timezone.utc).isoformat()
-        }
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        },
     }

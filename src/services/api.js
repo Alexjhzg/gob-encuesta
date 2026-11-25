@@ -5,7 +5,6 @@
 const API_HOST = import.meta.env.VITE_API_BASE_URL || '';
 const API_BASE = `${API_HOST}/api/kobo`;
 
-
 /**
  * Fetches GeoJSON survey dataset from proxy
  */
@@ -20,15 +19,19 @@ export async function getGeoJSONData({
   const params = new URLSearchParams();
   if (serverUrl) params.append('serverUrl', serverUrl);
   if (assetUid) params.append('assetUid', assetUid);
-  if (token) params.append('token', token);
   params.append('limit', String(limit));
   params.append('offset', String(offset));
   if (demo) params.append('demo', 'true');
 
-  const res = await fetch(`${API_BASE}/data?${params.toString()}`);
+  const headers = {};
+  if (token) headers['X-Kobo-Token'] = token;
+
+  const res = await fetch(`${API_BASE}/data?${params.toString()}`, { headers });
   if (!res.ok) {
     const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.error || `HTTP ${res.status}: Error al consultar servidor proxy`);
+    throw new Error(
+      errorData.error || errorData.detail || `HTTP ${res.status}: Error al consultar servidor proxy`
+    );
   }
   return await res.json();
 }

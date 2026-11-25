@@ -12,7 +12,7 @@ export default function Header({
   onSelectAssetUid = () => {},
   activeTab = 'map',
   onSelectTab = () => {},
-  onOpenConfig = () => {},
+  onOpenConfig: _onOpenConfig = () => {},
   onRefresh = () => {},
   loading = false
 }) {
@@ -27,16 +27,10 @@ export default function Header({
           </div>
         </div>
 
-        <SurveySelector
-          activeAssetUid={activeAssetUid}
-          onSelectAssetUid={onSelectAssetUid}
-        />
+        <SurveySelector activeAssetUid={activeAssetUid} onSelectAssetUid={onSelectAssetUid} />
 
         <div className="w-full md:w-auto">
-          <ViewTabSwitcher
-            activeTab={activeTab}
-            onSelectTab={onSelectTab}
-          />
+          <ViewTabSwitcher activeTab={activeTab} onSelectTab={onSelectTab} />
         </div>
       </div>
 

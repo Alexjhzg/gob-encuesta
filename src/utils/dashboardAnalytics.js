@@ -10,7 +10,7 @@ export const COLOR_PALETTES = [
   '#f97316', // Orange
   '#14b8a6', // Teal
   '#a855f7', // Violet
-  '#64748b'  // Slate
+  '#64748b' // Slate
 ];
 
 /**
@@ -21,7 +21,7 @@ export function computeDistribution(features = [], keyExtractor) {
   const counts = {};
   let total = 0;
 
-  features.forEach(f => {
+  features.forEach((f) => {
     const val = keyExtractor(f.properties || {});
     if (val !== undefined && val !== null && val !== '') {
       counts[val] = (counts[val] || 0) + 1;
@@ -50,7 +50,7 @@ export function computeAgeDistribution(features = []) {
   };
   let total = 0;
 
-  features.forEach(f => {
+  features.forEach((f) => {
     const rawAge = f.properties?.['S2/edad'];
     if (rawAge !== undefined && rawAge !== null && rawAge !== '') {
       const age = parseInt(rawAge, 10);
@@ -76,9 +76,14 @@ export function computeAgeDistribution(features = []) {
 /**
  * Format distribution data into Chart.js Bar dataset format
  */
-export function formatBarChartData(distribution = [], datasetLabel = 'Registros', color = '#3b82f6', customColors = {}) {
-  const labels = distribution.map(d => d.label);
-  const data = distribution.map(d => d.count);
+export function formatBarChartData(
+  distribution = [],
+  datasetLabel = 'Registros',
+  color = '#3b82f6',
+  customColors = {}
+) {
+  const labels = distribution.map((d) => d.label);
+  const data = distribution.map((d) => d.count);
   const backgroundColors = distribution.map((d, idx) => {
     if (customColors && customColors[d.label]) return customColors[d.label];
     if (Array.isArray(color)) return color[idx % color.length];

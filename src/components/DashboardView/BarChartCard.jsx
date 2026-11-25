@@ -31,7 +31,7 @@ export default function BarChartCard({
         borderWidth: 1,
         padding: 10,
         callbacks: {
-          label: function(context) {
+          label: function (context) {
             const rawVal = context.raw || 0;
             const item = data[context.dataIndex];
             const pct = item?.percent ? ` (${item.percent}%)` : '';

@@ -14,13 +14,13 @@ export default function Sidebar({
   filters = {},
   onFilterChange = () => {},
   enumerators = [],
-  categories = [],
+  categories: _categories = [],
   parroquias = [],
   sectors = [],
   minDate = '2026-08-28',
   maxDate = '2026-08-30',
-  spatialFilterEnabled = true,
-  onToggleSpatialFilter = () => {},
+  spatialFilterEnabled: _spatialFilterEnabled = true,
+  onToggleSpatialFilter: _onToggleSpatialFilter = () => {},
   onExportGeoJSON = () => {},
   onExportCSV = () => {}
 }) {
@@ -48,13 +48,15 @@ export default function Sidebar({
 
       <aside
         className={`fixed md:relative inset-y-0 left-0 z-40 bg-slate-900 border-r border-slate-800 text-slate-200 transition-all duration-300 ease-in-out flex flex-col shadow-2xl md:shadow-none ${
-          isOpen ? 'w-72 min-w-[288px] translate-x-0' : 'w-14 min-w-[56px] -translate-x-full md:translate-x-0'
+          isOpen
+            ? 'w-72 min-w-[288px] translate-x-0'
+            : 'w-14 min-w-[56px] -translate-x-full md:translate-x-0'
         }`}
       >
         {/* Desktop Edge Toggle Button */}
         <button
           onClick={onToggleOpen}
-          title={isOpen ? "Colapsar Panel" : "Expandir Panel de Filtros"}
+          title={isOpen ? 'Colapsar Panel' : 'Expandir Panel de Filtros'}
           className="hidden md:flex absolute -right-3 top-5 z-50 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1.5 shadow-md border border-slate-800 transition-transform cursor-pointer"
         >
           {isOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
@@ -141,10 +143,7 @@ export default function Sidebar({
             <hr className="border-slate-800" />
 
             {/* Export Section */}
-            <ExportActions
-              onExportGeoJSON={onExportGeoJSON}
-              onExportCSV={onExportCSV}
-            />
+            <ExportActions onExportGeoJSON={onExportGeoJSON} onExportCSV={onExportCSV} />
           </div>
         ) : (
           /* Collapsed mode icons preview for Desktop */

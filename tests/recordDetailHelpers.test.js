@@ -54,7 +54,9 @@ describe('RecordDetail Helpers', () => {
     it('contains expected question title mappings', () => {
       expect(QUESTION_LABELS['S2/sexo']).toBe('Sexo');
       expect(QUESTION_LABELS['S2/edad']).toBe('Edad');
-      expect(QUESTION_LABELS['g_preguntas/g_propension/si_elecciones_domingo']).toBe('Propensión a Votar');
+      expect(QUESTION_LABELS['g_preguntas/g_propension/si_elecciones_domingo']).toBe(
+        'Propensión a Votar'
+      );
     });
   });
 });

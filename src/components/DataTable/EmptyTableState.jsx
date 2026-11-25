@@ -8,7 +8,9 @@ export default function EmptyTableState() {
         <div className="flex flex-col items-center justify-center gap-2">
           <MapPin size={28} className="text-slate-300" />
           <span className="font-semibold text-slate-700">No se encontraron registros</span>
-          <span className="text-xs text-slate-400">Intenta ajustar los filtros de búsqueda o fecha.</span>
+          <span className="text-xs text-slate-400">
+            Intenta ajustar los filtros de búsqueda o fecha.
+          </span>
         </div>
       </td>
     </tr>

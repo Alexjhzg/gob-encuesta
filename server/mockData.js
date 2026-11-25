@@ -24,19 +24,17 @@ export const MOCK_CATEGORIES = [
 ];
 
 export const MOCK_MUNICIPALITIES = [
-  { municipio: 'Municipio Libertador', parroquias: ['Sucre (Catia)', 'El Recreo', 'La Vega', 'Caricuao', 'Antímano'] },
+  {
+    municipio: 'Municipio Libertador',
+    parroquias: ['Sucre (Catia)', 'El Recreo', 'La Vega', 'Caricuao', 'Antímano']
+  },
   { municipio: 'Municipio Sucre', parroquias: ['Petare', 'Leoncio Martínez', 'Caucagüita'] },
   { municipio: 'Municipio Chacao', parroquias: ['Chacao', 'El Rosal'] },
   { municipio: 'Municipio Baruta', parroquias: ['Nuestra Señora del Rosario', 'Las Minas'] },
   { municipio: 'Municipio El Hatillo', parroquias: ['Santa Rosalía de Palermo'] }
 ];
 
-export const MOCK_STATUSES = [
-  'Resuelto',
-  'En Proceso',
-  'Inspección Requerida',
-  'Pendiente'
-];
+export const MOCK_STATUSES = ['Resuelto', 'En Proceso', 'Inspección Requerida', 'Pendiente'];
 
 const OBSERVATION_SAMPLES = [
   'Inspección de tubería principal con fuga leve de agua potable.',
@@ -75,7 +73,7 @@ export function generateMockGeoJSON(count = 50) {
 
   // Caracas Metropolitan Region bounding coordinates: Lat [10.42, 10.53], Lon [-67.00, -66.78]
   const baseLat = 10.475;
-  const baseLon = -66.890;
+  const baseLon = -66.89;
 
   for (let i = 1; i <= count; i++) {
     // Generate cluster hubs around specific focal points

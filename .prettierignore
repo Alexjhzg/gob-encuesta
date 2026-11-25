@@ -1,0 +1,7 @@
+dist
+node_modules
+venv
+data
+package-lock.json
+.pytest_cache
+

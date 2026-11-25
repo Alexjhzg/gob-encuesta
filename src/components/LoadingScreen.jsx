@@ -22,9 +22,7 @@ export default function LoadingScreen({ message = 'Cargando datos...' }) {
 
         {/* Minimal Title & Status Message */}
         <div className="flex flex-col items-center gap-1 mt-2">
-          <h2 className="text-lg font-bold text-slate-100 tracking-tight">
-            GeoEncuestas
-          </h2>
+          <h2 className="text-lg font-bold text-slate-100 tracking-tight">GeoEncuestas</h2>
           <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
             <Loader2 size={14} className="animate-spin text-blue-400" />
             <span>{message}</span>

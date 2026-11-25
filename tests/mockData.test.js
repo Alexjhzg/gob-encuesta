@@ -15,7 +15,7 @@ describe('TDD 1.3: Mock Data Generator Module', () => {
     expect(firstFeature.type).toBe('Feature');
     expect(firstFeature.geometry.type).toBe('Point');
     expect(firstFeature.geometry.coordinates).toHaveLength(2);
-    
+
     // Check coordinates range (Venezuelan region bounds)
     const [lon, lat] = firstFeature.geometry.coordinates;
     expect(lat).toBeGreaterThanOrEqual(10.0);

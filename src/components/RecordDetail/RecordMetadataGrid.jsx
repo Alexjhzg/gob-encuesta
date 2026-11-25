@@ -1,6 +1,10 @@
 import React from 'react';
 import { User, Calendar, Tag, Navigation } from 'lucide-react';
-import { formatDate, formatParroquiaName, formatSectorName } from '../../utils/formattersAndFilters.js';
+import {
+  formatDate,
+  formatParroquiaName,
+  formatSectorName
+} from '../../utils/formattersAndFilters.js';
 import { formatValueLabel } from '../../utils/recordDetailHelpers.js';
 
 export default function RecordMetadataGrid({ properties = {} }) {

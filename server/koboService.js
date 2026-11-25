@@ -3,9 +3,30 @@
  * Connects securely to KoboToolbox servers with Token authentication.
  */
 
+import net from 'node:net';
+
+const DEFAULT_ALLOWED_KOBO_HOSTS = [
+  'kf.kobotoolbox.org',
+  'eu.kobotoolbox.org',
+  'kobo.humanitarianresponse.info'
+];
+
+export function getAllowedKoboHosts() {
+  const raw = process.env.ALLOWED_KOBO_HOSTS || '';
+  if (raw.trim()) {
+    return new Set(
+      raw
+        .split(',')
+        .map((h) => h.trim().toLowerCase())
+        .filter(Boolean)
+    );
+  }
+  return new Set(DEFAULT_ALLOWED_KOBO_HOSTS);
+}
+
 /**
  * Normalizes server URL ensuring protocol and clean slashes.
- * @param {string} url 
+ * @param {string} url
  * @returns {string}
  */
 export function normalizeServerUrl(url = 'https://kf.kobotoolbox.org') {
@@ -17,8 +38,41 @@ export function normalizeServerUrl(url = 'https://kf.kobotoolbox.org') {
 }
 
 /**
+ * Validates and normalizes server URL against HTTPS and host allowlist (SSRF protection).
+ * @param {string} url
+ * @returns {string}
+ */
+export function validateServerUrl(url = 'https://kf.kobotoolbox.org') {
+  const normalized = normalizeServerUrl(url);
+  let parsed;
+  try {
+    parsed = new URL(normalized);
+  } catch {
+    throw new Error('La URL del servidor KoboToolbox no es válida.');
+  }
+
+  if (parsed.protocol !== 'https:') {
+    throw new Error('Solo se permiten servidores KoboToolbox sobre HTTPS.');
+  }
+
+  const hostname = parsed.hostname.toLowerCase();
+  if (!hostname || net.isIP(hostname) !== 0) {
+    throw new Error('No se permiten direcciones IP directas como servidor KoboToolbox.');
+  }
+
+  const allowedHosts = getAllowedKoboHosts();
+  if (!allowedHosts.has(hostname)) {
+    throw new Error(
+      `Servidor KoboToolbox no permitido ('${hostname}'). Hosts permitidos: ${Array.from(allowedHosts).sort().join(', ')}.`
+    );
+  }
+
+  return normalized;
+}
+
+/**
  * Fetches raw submission data from KoboToolbox API v2 endpoint.
- * @param {object} params 
+ * @param {object} params
  * @returns {Promise<object>}
  */
 export async function fetchKoboSubmissions({
@@ -36,16 +90,17 @@ export async function fetchKoboSubmissions({
     throw new Error('El token de API de KoboToolbox (KOBO_API_TOKEN) es requerido.');
   }
 
-  const baseUrl = normalizeServerUrl(serverUrl);
+  const baseUrl = validateServerUrl(serverUrl);
   const endpoint = `${baseUrl}/api/v2/assets/${assetUid}/data/?limit=${limit}&offset=${offset}`;
 
   try {
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
-        'Authorization': `Token ${token}`,
-        'Accept': 'application/json'
-      }
+        Authorization: `Token ${token}`,
+        Accept: 'application/json'
+      },
+      signal: AbortSignal.timeout(15000)
     });
 
     if (!response.ok) {
@@ -74,7 +129,7 @@ export async function fetchKoboSubmissions({
 
 /**
  * Validates connection and asset existence with Kobo API v2.
- * @param {object} params 
+ * @param {object} params
  * @returns {Promise<{ success: boolean, name?: string, uid?: string, error?: string }>}
  */
 export async function validateKoboConnection({ serverUrl, assetUid, token }) {
@@ -82,16 +137,22 @@ export async function validateKoboConnection({ serverUrl, assetUid, token }) {
     return { success: false, error: 'Token y Asset UID son obligatorios' };
   }
 
-  const baseUrl = normalizeServerUrl(serverUrl);
+  let baseUrl;
+  try {
+    baseUrl = validateServerUrl(serverUrl);
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
   const endpoint = `${baseUrl}/api/v2/assets/${assetUid}/`;
 
   try {
     const response = await fetch(endpoint, {
       method: 'GET',
       headers: {
-        'Authorization': `Token ${token}`,
-        'Accept': 'application/json'
-      }
+        Authorization: `Token ${token}`,
+        Accept: 'application/json'
+      },
+      signal: AbortSignal.timeout(10000)
     });
 
     if (response.ok) {

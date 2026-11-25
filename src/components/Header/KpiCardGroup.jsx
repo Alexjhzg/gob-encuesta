@@ -13,7 +13,9 @@ export default function KpiCardGroup({ kpis = DEFAULT_KPIS }) {
           <Database size={14} className="sm:w-4 sm:h-4" />
         </div>
         <div>
-          <div className="text-[9px] sm:text-[10px] text-slate-400 font-medium uppercase tracking-wider">Total</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+            Total
+          </div>
           <div className="text-xs sm:text-sm font-bold text-white">{kpiData.total}</div>
         </div>
       </div>
@@ -24,10 +26,14 @@ export default function KpiCardGroup({ kpis = DEFAULT_KPIS }) {
           <MapPin size={14} className="sm:w-4 sm:h-4" />
         </div>
         <div>
-          <div className="text-[9px] sm:text-[10px] text-slate-400 font-medium uppercase tracking-wider">Geolocalizados</div>
+          <div className="text-[9px] sm:text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+            Geolocalizados
+          </div>
           <div className="text-xs sm:text-sm font-bold text-blue-400 flex items-center gap-1">
             <span>{kpiData.geocodedCount}</span>
-            <span className="text-[10px] sm:text-[11px] font-normal text-slate-300">({kpiData.percentGeocoded}%)</span>
+            <span className="text-[10px] sm:text-[11px] font-normal text-slate-300">
+              ({kpiData.percentGeocoded}%)
+            </span>
           </div>
         </div>
       </div>
@@ -38,7 +44,9 @@ export default function KpiCardGroup({ kpis = DEFAULT_KPIS }) {
           <Clock size={16} />
         </div>
         <div>
-          <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Última Sync</div>
+          <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+            Última Sync
+          </div>
           <div className="text-xs font-semibold text-slate-200">{kpiData.lastSync}</div>
         </div>
       </div>

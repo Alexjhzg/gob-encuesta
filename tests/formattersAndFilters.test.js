@@ -24,7 +24,7 @@ describe('TDD 2.1: Formatters & Filters Engine', () => {
     },
     {
       type: 'Feature',
-      geometry: { type: 'Point', coordinates: [-66.8500, 10.5000] },
+      geometry: { type: 'Point', coordinates: [-66.85, 10.5] },
       properties: {
         id: 2,
         submitted_by: 'Carlos Mendoza',
@@ -35,7 +35,7 @@ describe('TDD 2.1: Formatters & Filters Engine', () => {
     },
     {
       type: 'Feature',
-      geometry: { type: 'Point', coordinates: [-67.2000, 10.1000] }, // Outside caracas bounding box
+      geometry: { type: 'Point', coordinates: [-67.2, 10.1] }, // Outside caracas bounding box
       properties: {
         id: 3,
         submitted_by: 'Maria Rodriguez',
@@ -59,10 +59,10 @@ describe('TDD 2.1: Formatters & Filters Engine', () => {
 
   it('filterFeaturesByBounds should correctly filter features inside bounding box', () => {
     // Bounding box: south=10.40, west=-67.00, north=10.55, east=-66.80
-    const bounds = { south: 10.40, west: -67.00, north: 10.55, east: -66.80 };
+    const bounds = { south: 10.4, west: -67.0, north: 10.55, east: -66.8 };
     const filtered = filterFeaturesByBounds(sampleFeatures, bounds);
     expect(filtered).toHaveLength(2);
-    expect(filtered.map(f => f.properties.id)).toEqual([1, 2]);
+    expect(filtered.map((f) => f.properties.id)).toEqual([1, 2]);
   });
 
   it('filterFeaturesByDateRange should filter features within start and end date', () => {

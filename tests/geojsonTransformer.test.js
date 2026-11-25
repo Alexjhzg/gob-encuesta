@@ -4,7 +4,7 @@ import { parseGeopoint, transformKoboToGeoJSON } from '../server/geojsonTransfor
 describe('TDD 1.1: GeoJSON Transformer Module', () => {
   describe('parseGeopoint', () => {
     it('should parse standard Kobo geopoint string "lat lon alt precision"', () => {
-      const input = "10.4806 -66.9036 125 3.5";
+      const input = '10.4806 -66.9036 125 3.5';
       const result = parseGeopoint(input);
       expect(result).not.toBeNull();
       expect(result.latitude).toBeCloseTo(10.4806);

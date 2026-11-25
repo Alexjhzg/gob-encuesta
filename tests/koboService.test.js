@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { fetchKoboSubmissions, validateKoboConnection } from '../server/koboService.js';
+import {
+  fetchKoboSubmissions,
+  validateKoboConnection,
+  validateServerUrl
+} from '../server/koboService.js';
 
 describe('TDD 1.2: Kobo API v2 Service Module', () => {
   const mockServerUrl = 'https://kf.kobotoolbox.org';
@@ -16,7 +20,7 @@ describe('TDD 1.2: Kobo API v2 Service Module', () => {
       next: null,
       previous: null,
       results: [
-        { _id: 1, _geolocation: [10.48, -66.90], _submitted_by: 'user1' },
+        { _id: 1, _geolocation: [10.48, -66.9], _submitted_by: 'user1' },
         { _id: 2, _geolocation: [10.49, -66.91], _submitted_by: 'user2' }
       ]
     };
@@ -77,5 +81,12 @@ describe('TDD 1.2: Kobo API v2 Service Module', () => {
     });
 
     expect(isValid.success).toBe(true);
+  });
+
+  it('should block non-allowlisted hosts, HTTP and direct IPs (SSRF protection)', () => {
+    expect(validateServerUrl('https://kf.kobotoolbox.org/')).toBe('https://kf.kobotoolbox.org');
+    expect(() => validateServerUrl('http://kf.kobotoolbox.org')).toThrow(/HTTPS/);
+    expect(() => validateServerUrl('https://169.254.169.254')).toThrow(/IP/);
+    expect(() => validateServerUrl('https://evil.example.com')).toThrow(/no permitido/);
   });
 });

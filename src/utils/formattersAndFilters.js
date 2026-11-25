@@ -5,7 +5,7 @@
 
 /**
  * Formats ISO date string into readable Spanish format
- * @param {string|Date} dateInput 
+ * @param {string|Date} dateInput
  * @returns {string}
  */
 export function formatDate(dateInput) {
@@ -20,19 +20,20 @@ export function formatDate(dateInput) {
       hour: '2-digit',
       minute: '2-digit'
     });
-  } catch (err) {
+  } catch {
     return String(dateInput);
   }
 }
 
 /**
  * Formats latitude and longitude coordinates into cardinal display
- * @param {number} lat 
- * @param {number} lon 
+ * @param {number} lat
+ * @param {number} lon
  * @returns {string}
  */
 export function formatCoordinates(lat, lon) {
-  if (lat === undefined || lon === undefined || lat === null || lon === null) return 'Sin Coordenadas';
+  if (lat === undefined || lon === undefined || lat === null || lon === null)
+    return 'Sin Coordenadas';
   const latNum = parseFloat(lat);
   const lonNum = parseFloat(lon);
   if (isNaN(latNum) || isNaN(lonNum)) return 'Coordenadas inválidas';
@@ -45,14 +46,14 @@ export function formatCoordinates(lat, lon) {
 
 /**
  * Filters GeoJSON features by Leaflet/MapLibre bounding box { south, west, north, east }
- * @param {Array<object>} features 
- * @param {{ south: number, west: number, north: number, east: number } | null} bounds 
+ * @param {Array<object>} features
+ * @param {{ south: number, west: number, north: number, east: number } | null} bounds
  * @returns {Array<object>}
  */
 export function filterFeaturesByBounds(features = [], bounds) {
   if (!bounds || typeof bounds !== 'object') return features;
   const { south, west, north, east } = bounds;
-  if ([south, west, north, east].some(v => v === undefined || v === null || isNaN(v))) {
+  if ([south, west, north, east].some((v) => v === undefined || v === null || isNaN(v))) {
     return features;
   }
 
@@ -61,8 +62,12 @@ export function filterFeaturesByBounds(features = [], bounds) {
     return features;
   }
 
-  return features.filter(feature => {
-    if (!feature.geometry || feature.geometry.type !== 'Point' || !Array.isArray(feature.geometry.coordinates)) {
+  return features.filter((feature) => {
+    if (
+      !feature.geometry ||
+      feature.geometry.type !== 'Point' ||
+      !Array.isArray(feature.geometry.coordinates)
+    ) {
       return false;
     }
     const [lon, lat] = feature.geometry.coordinates;
@@ -72,7 +77,7 @@ export function filterFeaturesByBounds(features = [], bounds) {
 
 /**
  * Filters GeoJSON features by date range [startDate, endDate]
- * @param {Array<object>} features 
+ * @param {Array<object>} features
  * @param {string} startDate YYYY-MM-DD
  * @param {string} endDate YYYY-MM-DD
  * @returns {Array<object>}
@@ -83,7 +88,7 @@ export function filterFeaturesByDateRange(features = [], startDate, endDate) {
   const startMs = startDate ? new Date(`${startDate}T00:00:00Z`).getTime() : 0;
   const endMs = endDate ? new Date(`${endDate}T23:59:59Z`).getTime() : Infinity;
 
-  return features.filter(f => {
+  return features.filter((f) => {
     const subTime = f.properties?.submission_time || f.properties?._submission_time;
     if (!subTime) return false;
     const timeMs = new Date(subTime).getTime();
@@ -93,14 +98,14 @@ export function filterFeaturesByDateRange(features = [], startDate, endDate) {
 
 /**
  * Filters GeoJSON features by submitted_by / encuestador
- * @param {Array<object>} features 
- * @param {string} enumerator 
+ * @param {Array<object>} features
+ * @param {string} enumerator
  * @returns {Array<object>}
  */
 export function filterFeaturesByEnumerator(features = [], enumerator) {
   if (!enumerator || enumerator === 'ALL') return features;
   const target = enumerator.toLowerCase().trim();
-  return features.filter(f => {
+  return features.filter((f) => {
     const name = (f.properties?.submitted_by || f.properties?._submitted_by || '').toLowerCase();
     return name.includes(target);
   });
@@ -108,7 +113,7 @@ export function filterFeaturesByEnumerator(features = [], enumerator) {
 
 /**
  * Normalizes surveyor names, cleaning typos, accents, case, and removing numeric IDs
- * @param {string} name 
+ * @param {string} name
  * @returns {string|null}
  */
 export function normalizeSurveyorName(name) {
@@ -119,7 +124,7 @@ export function normalizeSurveyorName(name) {
   const normalized = str
     .toLowerCase()
     .split(/\s+/)
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 
   const aliasMap = {
@@ -144,13 +149,13 @@ export function normalizeSurveyorName(name) {
 
 /**
  * Filters GeoJSON features by category / sector
- * @param {Array<object>} features 
- * @param {string} category 
+ * @param {Array<object>} features
+ * @param {string} category
  * @returns {Array<object>}
  */
 export function filterFeaturesByCategory(features = [], category) {
   if (!category || category === 'ALL') return features;
-  return features.filter(f => f.properties?.categoria === category);
+  return features.filter((f) => f.properties?.categoria === category);
 }
 
 /**
@@ -166,22 +171,22 @@ export const PARROQUIA_NAMES = {
   '07': 'Corozo',
   '08': 'Furrial',
   '09': 'Jusepín',
-  '10': 'La Pica',
-  '11': 'San Vicente',
-  '1': 'Maturín Rural',
-  '2': 'Alto de los Godos',
-  '3': 'Boquerón',
-  '4': 'Las Cocuizas',
-  '5': 'San Simón',
-  '6': 'Santa Cruz',
-  '7': 'Corozo',
-  '8': 'Furrial',
-  '9': 'Jusepín'
+  10: 'La Pica',
+  11: 'San Vicente',
+  1: 'Maturín Rural',
+  2: 'Alto de los Godos',
+  3: 'Boquerón',
+  4: 'Las Cocuizas',
+  5: 'San Simón',
+  6: 'Santa Cruz',
+  7: 'Corozo',
+  8: 'Furrial',
+  9: 'Jusepín'
 };
 
 /**
  * Returns human-readable official Parroquia name from code
- * @param {string|number} code 
+ * @param {string|number} code
  * @returns {string}
  */
 export function formatParroquiaName(code) {
@@ -204,34 +209,34 @@ export const SECTOR_NAMES = {
   '07': 'La Muralia',
   '08': 'Av. Principal Tipuro',
   '09': 'Tipuro',
-  '10': 'Av. Principal Las Cocuizas',
-  '11': 'Valle Verde',
-  '12': 'San Jacinto',
-  '13': 'Los Cortijos',
-  '14': 'La Manga',
-  '15': 'Adyacencias Plaza Bolívar',
-  '16': 'Av. Bicentenario',
-  '17': 'Av. Juncal',
-  '18': 'Maco I',
-  '19': 'El Corozo',
-  '20': 'El Furrial',
-  '21': 'Jusepín',
-  '22': 'Sector La Pica',
-  '23': 'San Vicente',
-  '1': 'Adyacencias Mercado',
-  '2': 'Adyacencias Alumbrado',
-  '3': 'Los Guaritos',
-  '4': 'Los Guaritos I y II',
-  '5': 'Los Guaritos III y IV',
-  '6': 'Los Guaritos V',
-  '7': 'La Muralia',
-  '8': 'Av. Principal Tipuro',
-  '9': 'Tipuro'
+  10: 'Av. Principal Las Cocuizas',
+  11: 'Valle Verde',
+  12: 'San Jacinto',
+  13: 'Los Cortijos',
+  14: 'La Manga',
+  15: 'Adyacencias Plaza Bolívar',
+  16: 'Av. Bicentenario',
+  17: 'Av. Juncal',
+  18: 'Maco I',
+  19: 'El Corozo',
+  20: 'El Furrial',
+  21: 'Jusepín',
+  22: 'Sector La Pica',
+  23: 'San Vicente',
+  1: 'Adyacencias Mercado',
+  2: 'Adyacencias Alumbrado',
+  3: 'Los Guaritos',
+  4: 'Los Guaritos I y II',
+  5: 'Los Guaritos III y IV',
+  6: 'Los Guaritos V',
+  7: 'La Muralia',
+  8: 'Av. Principal Tipuro',
+  9: 'Tipuro'
 };
 
 /**
  * Returns human-readable official Sector name from code
- * @param {string|number} code 
+ * @param {string|number} code
  * @returns {string}
  */
 export function formatSectorName(code) {
@@ -243,37 +248,37 @@ export function formatSectorName(code) {
 
 /**
  * Filters GeoJSON features by Parroquia code
- * @param {Array<object>} features 
- * @param {string} parroquia 
+ * @param {Array<object>} features
+ * @param {string} parroquia
  * @returns {Array<object>}
  */
 export function filterFeaturesByParroquia(features = [], parroquia) {
   if (!parroquia || parroquia === 'ALL') return features;
-  return features.filter(f => String(f.properties?.['S1/par']) === String(parroquia));
+  return features.filter((f) => String(f.properties?.['S1/par']) === String(parroquia));
 }
 
 /**
  * Filters GeoJSON features by Sector code
- * @param {Array<object>} features 
- * @param {string} sector 
+ * @param {Array<object>} features
+ * @param {string} sector
  * @returns {Array<object>}
  */
 export function filterFeaturesBySector(features = [], sector) {
   if (!sector || sector === 'ALL') return features;
-  return features.filter(f => String(f.properties?.['S1/sec']) === String(sector));
+  return features.filter((f) => String(f.properties?.['S1/sec']) === String(sector));
 }
 
 /**
  * Filters GeoJSON features by text query
- * @param {Array<object>} features 
- * @param {string} searchText 
+ * @param {Array<object>} features
+ * @param {string} searchText
  * @returns {Array<object>}
  */
 export function filterFeaturesBySearchText(features = [], searchText) {
   if (!searchText || !searchText.trim()) return features;
   const query = searchText.toLowerCase().trim();
 
-  return features.filter(f => {
+  return features.filter((f) => {
     const p = f.properties || {};
     const textCorpus = [
       p.id,
@@ -284,7 +289,10 @@ export function filterFeaturesBySearchText(features = [], searchText) {
       p.municipio,
       p.parroquia,
       p.observaciones
-    ].filter(Boolean).join(' ').toLowerCase();
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
 
     return textCorpus.includes(query);
   });
@@ -292,8 +300,8 @@ export function filterFeaturesBySearchText(features = [], searchText) {
 
 /**
  * Calculates quick dashboard KPIs
- * @param {Array<object>} features 
- * @param {number} totalInDataset 
+ * @param {Array<object>} features
+ * @param {number} totalInDataset
  * @returns {object}
  */
 export function calculateKPIs(features = [], totalInDataset = 0) {
